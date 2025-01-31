@@ -3,6 +3,6 @@ export interface TaskProps {
   title: string;
   description: string;
   priority: string;
-  completed: boolean;
-  completedDate?: string;
+  category: string;
+  completed?: boolean;
 }

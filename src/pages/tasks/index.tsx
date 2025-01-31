@@ -48,7 +48,7 @@ const TaskPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Task Management</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center text-white">Task Management</h1>
       <TaskContainer
         completedTasks={completedTasks}
         onDelete={handleDelete}

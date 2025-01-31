@@ -1,0 +1,111 @@
+import { TaskProps } from "@/interfaces";
+import { faBook, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useState } from "react";
+
+const TaskInput = ({
+  onAddTask,
+}: {
+  onAddTask: (task: {
+    id:number;
+    title: string;
+    description: string;
+    priority: string;
+    category: string;
+  }) => void;
+}) => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState("HIGH");
+  const [selectedCategory, setSelectedCategory] = useState("Scheduled");
+
+  const handlePriorityChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setPriority(event.target.value);
+  };
+
+  const handleCategoryChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setSelectedCategory(event.target.value);
+  };
+
+  const handleAddTask = (task: {
+    title: string;
+    description: string;
+    priority: string;
+    category: string;
+  }) => {
+    const newTask: TaskProps = {
+      id: Date.now(), 
+      completed: false,
+      ...task,
+    };
+    onAddTask(newTask);
+
+    setTitle("");
+    setDescription("");
+  };
+
+  const priorityColor = {
+    HIGH: "text-red-500",
+    MEDIUM: "text-yellow-500",
+    LOW: "text-blue-500",
+  }[priority];
+
+  return (
+    <div className="bg-gray-200 p-4 rounded-md flex items-center justify-between">
+      <div className="flex-1 font-bold flex flex-col">
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Task Title..."
+          className="bg-transparent border-none text-lg outline-none placeholder-gray-500"
+          maxLength={50}
+        />
+        <input
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Description"
+          className="text-gray-600 text-[12px] bg-transparent border-none outline-none mt-2"
+          maxLength={70}
+        />
+      </div>
+
+      <div className="flex items-center text-[12px] space-x-2">
+        <select
+          value={priority}
+          onChange={handlePriorityChange}
+          className={`rounded-md p-1 ${priorityColor} bg-transparent`}
+        >
+          <option value="HIGH">HIGH</option>
+          <option value="MEDIUM">MEDIUM</option>
+          <option value="LOW">LOW</option>
+        </select>
+
+        <div className="relative">
+          <select
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+            className="rounded-md p-1 bg-transparent"
+          >
+            <option value="Scheduled">Scheduled</option>
+            <option value="Unscheduled">Unscheduled</option>
+          </select>
+        </div>
+
+        <button
+          className="bg-gray-300 p-2 rounded-full border border-black text-black hover:bg-gray-400"
+          onClick={() => handleAddTask}
+        >
+          <FontAwesomeIcon icon={faPlus} className="w-5" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default TaskInput;

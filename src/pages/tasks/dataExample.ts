@@ -4,8 +4,8 @@ import { TaskProps } from "@/interfaces";
 export const initialTasks: TaskProps[] = [
   {
     id: 1,
-    title: "Task 1",
-    description: "Description for Task 1",
+    title: "Review my  schedule",
+    description: "Check my assigned schedule every hour throughout the day.",
     priority: "high",
     completed: false,
   },
