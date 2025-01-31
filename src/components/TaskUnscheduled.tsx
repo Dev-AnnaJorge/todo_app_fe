@@ -10,14 +10,14 @@ import EditableTask from "./Modals/EditableDescription"; // Ensure correct impor
 import Select from "react-select";
 import RadioButton from "./Buttons/Radio";
 
-interface TaskScheduledProps {
+interface TaskUnScheduledProps {
   task: TaskProps;
   onDelete: (id: number) => void;
   onEdit?: (task: TaskProps) => void;
   onApprove?: (id: number) => void;
 }
 
-const TaskItem: React.FC<TaskScheduledProps> = ({
+const TaskItem: React.FC<TaskUnScheduledProps> = ({
   task,
   onDelete,
   onEdit,

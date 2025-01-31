@@ -1,5 +1,5 @@
 import React from "react";
-import TaskItem from "./TaskItem";
+import TaskScheduled from "./TaskItem";
 import { TaskProps } from "@/interfaces";
 
 interface CompletedTasksProps {

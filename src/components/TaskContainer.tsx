@@ -22,7 +22,7 @@ const TaskContainer: React.FC<TaskContainerProps> = ({
   onAddTask,
 }) => {
   return (
-    <div className="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8 p-4 drop-shadow-2xl">
+    <div className="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8 p-4 drop-shadow-2xl ">
       <div className="bg-[#D9D9D9] shadow-md rounded-lg p-6 flex-1">
       <h2 className="text-xl font-semibold mb-4">Things to do</h2>
       <TaskInput onAddTask={onAddTask} /> <br />
