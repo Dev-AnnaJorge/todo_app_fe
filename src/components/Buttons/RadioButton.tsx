@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 interface RadioProps {
   task: TaskProps;
   onCategoryChange?: (newCategory: string) => void;
-  onCategoryModal: (id: number, category: string) => any;
+  onCategoryModal?: (id: number, category: string) => any;
 }
 
 const RadioButton: React.FC<RadioProps> = ({
@@ -44,6 +44,14 @@ const RadioButton: React.FC<RadioProps> = ({
       console.error("Error updating category:", error);
     }
   };
+
+  if (task.status === "completed") {
+    return (
+      <div className="p-2 text-sm text-center font-semibold text-slate-600">
+        Completed: {task.category.charAt(0).toUpperCase() + task.category.slice(1)}
+      </div>
+    );
+  }
 
   return (
     <div className="relative max-w-sm flex w-full flex-col rounded-xl bg-transparent">

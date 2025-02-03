@@ -2,7 +2,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify"; // Ensure you have toast imported
+import toast from "react-hot-toast";
 
 const TaskInput = ({
   onAddTask,
@@ -37,6 +37,10 @@ const TaskInput = ({
   };
 
   const handleAddTask = async () => {
+    if (!title || !description) {
+      toast.error("Please provide the empty fields");
+      return;
+    }
     try {
       const payload = {
         title: title,
@@ -49,10 +53,10 @@ const TaskInput = ({
         payload
       );
       toast.success("Task added successfully!");
-      console.log("lkmlml"+toast.success("Task added successfully!"))
+
       const { message, code, task } = response.data;
       if (code === 404) {
-        toast.error(message)
+        toast.error(message);
       }
       onAddTask(task);
       setTitle("");
@@ -62,7 +66,7 @@ const TaskInput = ({
     } catch (error: any) {
       toast.error("Failed to add task");
     }
-    // setTimeout(() => window.location.reload(), 2000); 
+    setTimeout(() => window.location.reload(), 2000);
   };
 
   const priorityColor = {

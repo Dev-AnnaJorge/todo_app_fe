@@ -41,7 +41,10 @@ const TaskItem: React.FC<TaskScheduledProps> = ({
   }, [task.status]);
 
   const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal=() => setIsModalOpen(false);
+  const handleCloseModal = () => {
+    onCategoryModal(task.id, task.category);
+    setIsModalOpen(false);
+  };
   
   const handleSelect = async (selectedOption: any) => {
     const newStatus = selectedOption.value;
@@ -86,6 +89,7 @@ const TaskItem: React.FC<TaskScheduledProps> = ({
         description: newDescription,
       });
       toast.success("Task updated successfully!");
+      setTimeout(() => window.location.reload(), 1000); 
     } catch (error) {
       toast.error("Failed to update task.");
       console.error("Error updating task:", error);
@@ -118,7 +122,7 @@ const TaskItem: React.FC<TaskScheduledProps> = ({
         }
       );
       toast.success("Task marked as completed!");
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 2000); 
     } catch (error) {
       toast.error("Failed to update task status.");
       console.error("Error updating task status:", error);
@@ -231,7 +235,7 @@ const TaskItem: React.FC<TaskScheduledProps> = ({
               <h3 className="text-gray-600 text-[12px] text-center m-1 font-semibold">
                 Date:{formatDate(task.createdAt)}
               </h3>
-              <RadioButton task={task} onCategoryModal={onCategoryModal} />
+              <RadioButton task={task}/>
               <EditableTask task={task} onSave={handleSaveDescription} />
             </div>
           </div>

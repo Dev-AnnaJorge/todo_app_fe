@@ -12,9 +12,9 @@ const EditableTask: React.FC<EditableTaskProps> = ({ task, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newDescription, setNewDescription] = useState<string>(task.description);
 
- useEffect(() => {
-  setNewDescription(task.description);
-  }, [task.description ]);
+  useEffect(() => {
+    setNewDescription(task.description);
+  }, [task.description]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -22,7 +22,7 @@ const EditableTask: React.FC<EditableTaskProps> = ({ task, onSave }) => {
 
   const handleSaveClick = () => {
     onSave(newDescription);
-    setIsEditing(false); // Switch back to view mode after saving
+    setIsEditing(false);
   };
 
   const handleChange = (
@@ -44,20 +44,22 @@ const EditableTask: React.FC<EditableTaskProps> = ({ task, onSave }) => {
         <p className="text-gray-700 mt-2">{newDescription}</p>
       )}
       <div className="flex justify-end mt-4">
-        {isEditing ? (
-          <button
-            onClick={handleSaveClick}
-            className="text-[#171717] px-2 py-2 rounded flex items-center hover:bg-gray-300 transition"
-          >
-            <FontAwesomeIcon icon={faSave} className="h-5 w-5" />
-          </button>
-        ) : (
-          <button
-            onClick={handleEditClick}
-            className="text-[#171717] px-2 py-2 rounded flex items-center hover:bg-gray-300 transition"
-          >
-            <FontAwesomeIcon icon={faPenToSquare} className="h-5 w-5" />
-          </button>
+        {task.status !== "completed" && (
+          isEditing ? (
+            <button
+              onClick={handleSaveClick}
+              className="text-[#171717] px-2 py-2 rounded flex items-center hover:bg-gray-300 transition"
+            >
+              <FontAwesomeIcon icon={faSave} className="h-5 w-5" />
+            </button>
+          ) : (
+            <button
+              onClick={handleEditClick}
+              className="text-[#171717] px-2 py-2 rounded flex items-center hover:bg-gray-300 transition"
+            >
+              <FontAwesomeIcon icon={faPenToSquare} className="h-5 w-5" />
+            </button>
+          )
         )}
       </div>
     </div>

@@ -10,8 +10,8 @@ import EditableTask from "../Modals/EditableDescription";
 import Select from "react-select";
 import RadioButton from "../Buttons/RadioButton";
 import axios from "axios";
-import { toast } from "react-toastify";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import toast from "react-hot-toast";
 
 interface TaskUnScheduledProps {
   task: TaskProps;
@@ -41,7 +41,10 @@ const TaskUnscheduled: React.FC<TaskUnScheduledProps> = ({
 
   // Function to handle modal
   const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal=() => setIsModalOpen(false);
+  const handleCloseModal = () => {
+    onCategoryModal(task.id, task.category);
+    setIsModalOpen(false);
+  };
 
   // Handle status change and update backend
   const handleSelect = async (selectedOption: any) => {
@@ -101,7 +104,7 @@ const TaskUnscheduled: React.FC<TaskUnScheduledProps> = ({
         }
       );
       toast.success("Task marked as completed!");
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 2000); 
     } catch (error) {
       toast.error("Failed to update task status.");
       console.error("Error updating task status:", error);
@@ -124,6 +127,7 @@ const TaskUnscheduled: React.FC<TaskUnScheduledProps> = ({
         }
       );
       toast.success("Task updated successfully!");
+      setTimeout(() => window.location.reload(), 1000); 
     } catch (error) {
       toast.error("Failed to update task.");
       console.error("Error updating task:", error);
@@ -235,7 +239,7 @@ const TaskUnscheduled: React.FC<TaskUnScheduledProps> = ({
               <h3 className="text-gray-600 text-[12px] text-center m-1 font-semibold">
                 Date:{formatDate(task.createdAt)}
               </h3>
-              <RadioButton task={task} onCategoryModal={onCategoryModal} />
+              <RadioButton task={task} />
               <EditableTask task={task} 
               onSave={handleSaveDescription} />
             </div>

@@ -7,5 +7,6 @@ export interface TaskProps {
   status:string;
   createdAt: string,
   updatedAt: string,
-  completedAt: string
+  completedAt: string,
+  effortBurn?:number
 }
