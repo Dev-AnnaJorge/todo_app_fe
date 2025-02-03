@@ -1,23 +1,28 @@
-import { TaskProps } from "@/interfaces";
-import { faBook, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify"; // Ensure you have toast imported
 
 const TaskInput = ({
   onAddTask,
 }: {
   onAddTask: (task: {
-    id:number;
+    id: number;
     title: string;
     description: string;
     priority: string;
     category: string;
+    status: string;
+    createdAt: Date;
+    updatedAt: Date;
+    completedAt: Date;
   }) => void;
 }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState("HIGH");
-  const [selectedCategory, setSelectedCategory] = useState("Scheduled");
+  const [priority, setPriority] = useState("high");
+  const [selectedCategory, setSelectedCategory] = useState("scheduled");
 
   const handlePriorityChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -31,27 +36,39 @@ const TaskInput = ({
     setSelectedCategory(event.target.value);
   };
 
-  const handleAddTask = (task: {
-    title: string;
-    description: string;
-    priority: string;
-    category: string;
-  }) => {
-    const newTask: TaskProps = {
-      id: Date.now(), 
-      completed: false,
-      ...task,
-    };
-    onAddTask(newTask);
+  const handleAddTask = async () => {
+    try {
+      const payload = {
+        title: title,
+        description: description,
+        priority: priority,
+        category: selectedCategory.toLowerCase(),
+      };
+      const response = await axios.post(
+        `${process.env.API_URL}/api/todos`,
+        payload
+      );
+      const { message, code, task } = response.data;
 
-    setTitle("");
-    setDescription("");
+      if (code === 404) {
+        toast.error(message);
+        return;
+      }
+      onAddTask(task);
+      setTitle("");
+      setDescription("");
+      setPriority("high");
+      setSelectedCategory("scheduled");
+    } catch (error: any) {
+      toast.error("Failed to add task");
+    }
+    window.location.reload();
   };
 
   const priorityColor = {
-    HIGH: "text-red-500",
-    MEDIUM: "text-yellow-500",
-    LOW: "text-blue-500",
+    high: "text-red-500",
+    medium: "text-yellow-500",
+    low: "text-blue-500",
   }[priority];
 
   return (
@@ -81,25 +98,25 @@ const TaskInput = ({
           onChange={handlePriorityChange}
           className={`rounded-md p-1 ${priorityColor} bg-transparent`}
         >
-          <option value="HIGH">HIGH</option>
-          <option value="MEDIUM">MEDIUM</option>
-          <option value="LOW">LOW</option>
+          <option value="high">HIGH</option>
+          <option value="medium">MEDIUM</option>
+          <option value="low">LOW</option>
         </select>
 
         <div className="relative">
           <select
-            value={selectedCategory}
+            value={selectedCategory.toLowerCase()}
             onChange={handleCategoryChange}
             className="rounded-md p-1 bg-transparent"
           >
-            <option value="Scheduled">Scheduled</option>
-            <option value="Unscheduled">Unscheduled</option>
+            <option value="scheduled">Scheduled</option>
+            <option value="unscheduled">Unscheduled</option>
           </select>
         </div>
 
         <button
           className="bg-gray-300 p-2 rounded-full border border-black text-black hover:bg-gray-400"
-          onClick={() => handleAddTask}
+          onClick={handleAddTask}
         >
           <FontAwesomeIcon icon={faPlus} className="w-5" />
         </button>

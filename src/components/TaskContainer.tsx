@@ -1,8 +1,9 @@
 import { TaskProps } from "@/interfaces";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import TaskList from "./TaskList";
-import CompletedTasks from "./CompletedTask";
-import TaskInput from "./TaskInput";
+import CompletedTasks from "./AccomplishedTasks/CompletedTask";
+import TaskInput from "./ToDo/TaskInput";
+import axios from "axios";
 
 interface TaskContainerProps {
   tasks: TaskProps[];
@@ -10,30 +11,58 @@ interface TaskContainerProps {
   onDelete: (id: number) => void;
   onEdit: (task: TaskProps) => void;
   onApprove: (id: number) => void;
-  onAddTask: (task: TaskProps) => void; 
+  onAddTask: (task: TaskProps) => void;
+  onSelect: (id: number, status:string) => void;
+
 }
 
 const TaskContainer: React.FC<TaskContainerProps> = ({
-  tasks,
   completedTasks,
   onDelete,
   onEdit,
   onApprove,
   onAddTask,
+  onSelect
 }) => {
+  const [fetchedTasks, setFetchedTasks] = useState<TaskProps[]>([]);
+  const [completedTask, setCompletedTask] = useState<TaskProps[]>([]);
+
+  const fetchData = async () => {
+    try {
+      const res = await axios.get(`${process.env.API_URL}/api/todos`);
+      setFetchedTasks(res.data);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
+  const fetchCompletdTask = async () => {
+    return await axios
+      .get(`${process.env.API_URL}/api/todos/completed`)
+      .then((res) => {
+        setCompletedTask(res.data);
+      });
+  };
+  console.log({ completedTask });
+
+  useEffect(() => {
+    fetchData();
+    fetchCompletdTask();
+  }, []);
+
   return (
-    <div className="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8 p-4 drop-shadow-2xl ">
+    <div className="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8 p-4 drop-shadow-2xl">
       <div className="bg-[#D9D9D9] shadow-md rounded-lg p-6 flex-1">
-      <h2 className="text-xl font-semibold mb-4">Things to do</h2>
-      <TaskInput onAddTask={onAddTask} /> <br />
-        {tasks.length === 0 ? (
+        <h2 className="text-xl font-semibold mb-4">Things to do</h2>
+        <TaskInput onAddTask={onAddTask} /> <br />
+        {fetchedTasks.length === 0 ? (
           <p className="text-gray-500">No tasks available. Add a new task!</p>
         ) : (
           <TaskList
-            tasks={tasks}
+            tasks={fetchedTasks}
             onDelete={onDelete}
             onEdit={onEdit}
             onApprove={onApprove}
+            onSelect={onSelect}
           />
         )}
       </div>
@@ -42,7 +71,7 @@ const TaskContainer: React.FC<TaskContainerProps> = ({
         {completedTasks.length === 0 ? (
           <p className="text-gray-500">No completed tasks.</p>
         ) : (
-          <CompletedTasks completedTasks={completedTasks} onDelete={onDelete} />
+          <CompletedTasks tasksProps={completedTasks} onDelete={onDelete} />
         )}
       </div>
     </div>

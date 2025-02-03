@@ -4,5 +4,8 @@ export interface TaskProps {
   description: string;
   priority: string;
   category: string;
-  completed?: boolean;
+  status:string;
+  createdAt: Date,
+  updatedAt: Date,
+  completedAt: Date
 }

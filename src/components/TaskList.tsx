@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { TaskProps } from "@/interfaces";
-import TaskScheduled from "./TaskItem"; // Assuming TaskScheduled exists
-import TaskUnscheduled from "./TaskUnscheduled"; // Assuming TaskUnscheduled exists
+import TaskScheduled from "./ToDo/TaskItem";
+import TaskUnscheduled from "./ToDo/TaskUnscheduled";
+import axios from "axios";
 
 interface TaskListProps {
   tasks: TaskProps[];
   onDelete: (id: number) => void;
   onEdit: (task: TaskProps) => void;
   onApprove: (id: number) => void;
+  onSelect: (id: number, status:string) => void;
 }
 
 const TaskList: React.FC<TaskListProps> = ({
@@ -15,41 +17,86 @@ const TaskList: React.FC<TaskListProps> = ({
   onDelete,
   onEdit,
   onApprove,
+  onSelect,
 }) => {
-  // Separate tasks into scheduled and unscheduled
-  const scheduledTasks = tasks.filter((task) => task.category);
-  const unscheduledTasks = tasks.filter((task) => !task.category);
+  const [data, setData] = useState<TaskProps[]>([]);
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(`${process.env.API_URL}/api/todos`);
+        setData(res.data);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleStatusChange = async (taskId: number, newStatus: string) => {
+    try {
+      await axios.put(`${process.env.API_URL}/api/todos/${taskId}/status=${newStatus}`, {
+        id:taskId,
+        status: newStatus,
+      });
+      
+      setData((prevData) =>
+        prevData.map((task) =>
+          task.id === taskId ? { ...task, status: newStatus } : task
+        )
+      );
+      onSelect?.(taskId, newStatus);
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+ 
+  };
+   
 
   return (
-    <div className="">
+    <div>
       <h1 className="text-xl font-semibold">Scheduled</h1>
-      <div className="bg-transparent p-4 rounded-lg shadow-md h-52 overflow-y-auto scrollable">
-        {scheduledTasks.length === 0 ? (
+      <div className="bg-transparent p-4 rounded-lg shadow-md h-52 overflow-y-auto">
+        {tasks.filter((task) => task.category === "scheduled").length === 0 ? (
           <p className="text-gray-500">No scheduled tasks available.</p>
         ) : (
-          scheduledTasks.map((task) => (
-            <TaskScheduled
-              key={task.id}
-              task={task}
-              onDelete={onDelete}
-              onApprove={onApprove}
-            />
-          ))
+         tasks
+            .filter((task) => task.category === "scheduled")
+            .map((task) => (
+              <TaskScheduled
+                key={task.id}
+                task={task}
+                onDelete={onDelete}
+                onEdit={onEdit}
+                onSelect={
+                  handleStatusChange
+                }
+                onApprove={onApprove}
+              />
+            ))
         )}
       </div>
       <h1 className="text-xl font-semibold mt-10">Unscheduled</h1>
-      <div className="bg-transparent p-4 border-spacing-32 rounded-lg shadow-md h-56 overflow-y-auto scrollable">
-        {unscheduledTasks.length === 0 ? (
+      <div className="bg-transparent p-4 border-spacing-32 rounded-lg shadow-md h-56 overflow-y-auto">
+        {tasks.filter((task) => task.category === "unscheduled").length ===
+        0 ? (
           <p className="text-gray-500">No unscheduled tasks available.</p>
         ) : (
-          unscheduledTasks.map((task) => (
-            <TaskUnscheduled
-              key={task.id}
-              task={task}
-              onDelete={onDelete}
-              onApprove={onApprove}
-            />
-          ))
+          tasks
+            .filter((task) => task.category === "unscheduled")
+            .map((task) => (
+              <TaskUnscheduled
+                key={task.id}
+                task={task}
+                onDelete={onDelete}
+                onEdit={onEdit}
+                onSelect={
+                  handleStatusChange
+                }
+                onApprove={onApprove}
+              />
+            ))
         )}
       </div>
     </div>
