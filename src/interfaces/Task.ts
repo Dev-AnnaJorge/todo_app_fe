@@ -5,7 +5,7 @@ export interface TaskProps {
   priority: string;
   category: string;
   status:string;
-  createdAt: Date,
-  updatedAt: Date,
-  completedAt: Date
+  createdAt: string,
+  updatedAt: string,
+  completedAt: string
 }

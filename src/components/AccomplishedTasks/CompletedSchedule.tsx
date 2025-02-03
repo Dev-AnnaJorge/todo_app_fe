@@ -1,23 +1,36 @@
 import { TaskProps } from "@/interfaces";
 import React, { useEffect, useState } from "react";
 
-
 interface CompletedSchedule {
-  task: TaskProps
+  task: TaskProps;
 }
 
-const CompletedSchedule: React.FC<CompletedSchedule> = ({
-  task,
+const CompletedSchedule: React.FC<CompletedSchedule> = ({ task }) => {
+  const [formattedDate, setFormattedDate] = useState<string | undefined>(task.createdAt);
+  const [completedDate, setCompletedDate] = useState<string | undefined>(task.completedAt);
 
-}) => {
-  
+  const formatDate = (dateString: string) => {
+    const dateObj = new Date(dateString?.replace(" ", "T"));
+    return `${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`;
+  };
+  useEffect(() => {
+    setFormattedDate(task.createdAt);
+    setCompletedDate(task.completedAt);
+  }, [task.createdAt]);
+
   return (
     <div className="flex flex-col w-full">
       <div className="flex w-full items-center justify-between">
-        <div className="flex w-full items-center justify-between bg-[#F5E8E8] p-4 rounded-full shadow">
+        <div className="flex w-full items-center justify-between bg-[#F5E8E8] p-4 rounded-lg mt-2">
           <div className="flex flex-col w-2/3">
             <h3 className="text-lg font-semibold cursor-pointer">
               {task.title}
+            </h3>
+            <h3 className=" text-[14px] text-gray-400 cursor-pointer">
+              Date: {formatDate(task.createdAt || "")} - {formatDate(task.completedAt || "")}
             </h3>
           </div>
         </div>
@@ -25,8 +38,5 @@ const CompletedSchedule: React.FC<CompletedSchedule> = ({
     </div>
   );
 };
-
-
-
 
 export default CompletedSchedule;

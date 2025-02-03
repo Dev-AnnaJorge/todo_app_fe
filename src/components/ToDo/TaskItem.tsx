@@ -8,39 +8,41 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 import EditableTask from "../Modals/EditableDescription";
 import Select from "react-select";
-import RadioButton from "../Buttons/Radio";
+import RadioButton from "../Buttons/RadioButton";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 
 interface TaskScheduledProps {
   task: TaskProps;
   onDelete: (id: number) => void;
-  onEdit?: (task: TaskProps) => void;
   onApprove?: (id: number) => void;
   onSelect?: (id: number, status: string) => any;
+  onCategoryModal:(id:number, category:string)=>any;
 }
 
 const TaskItem: React.FC<TaskScheduledProps> = ({
   task,
   onDelete,
-  onEdit,
   onApprove,
   onSelect,
+  onCategoryModal
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [description, setDescription] = useState(task?.description);
   const [selectedStatus, setSelectedStatus] = useState<string | undefined>(
     task.status
   );
+  //retrieving data after closing moodal
+  const [data, newData] = useState<[]>([]);
 
   useEffect(() => {
     setSelectedStatus(task.status);
   }, [task.status]);
 
   const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
-
+  const handleCloseModal=() => setIsModalOpen(false);
+  
   const handleSelect = async (selectedOption: any) => {
     const newStatus = selectedOption.value;
     setSelectedStatus(newStatus);
@@ -74,11 +76,21 @@ const TaskItem: React.FC<TaskScheduledProps> = ({
     }
   };
 
-  const handleEditDescription = (newDescription: string) => {
+  const handleSaveDescription = async (newDescription: string) => {
     setDescription(newDescription);
-    if (onEdit) {
-      onEdit({ ...task, description: newDescription });
+    try {
+      await axios.put(`${process.env.API_URL}/api/todos/update`, {
+        id: task.id,
+        title: task.title,
+        category: task.category,
+        description: newDescription,
+      });
+      toast.success("Task updated successfully!");
+    } catch (error) {
+      toast.error("Failed to update task.");
+      console.error("Error updating task:", error);
     }
+    onSelect?.(task.id, task.status);
   };
 
   const CompletedIcon = () => (
@@ -93,6 +105,35 @@ const TaskItem: React.FC<TaskScheduledProps> = ({
       <ThumbUpIcon />
     </div>
   );
+  const handleApprove = async () => {
+    const completedStatus = "completed";
+    setSelectedStatus(completedStatus);
+
+    try {
+      await axios.put(
+        `${process.env.API_URL}/api/todos/${task.id}/status=${task.status}`,
+        {
+          id: task.id,
+          status: completedStatus,
+        }
+      );
+      toast.success("Task marked as completed!");
+      window.location.reload();
+    } catch (error) {
+      toast.error("Failed to update task status.");
+      console.error("Error updating task status:", error);
+    }
+
+    onSelect?.(task.id, completedStatus);
+  };
+
+  const formatDate = (dateString: string) => {
+    const dateObj = new Date(dateString?.replace(" ", "T"));
+    return `${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`;
+  };
   const taskStatusOptions = [
     { value: "todo", label: "To do" },
     { value: "in_progress", label: "In Progress" },
@@ -134,9 +175,7 @@ const TaskItem: React.FC<TaskScheduledProps> = ({
                       ? "opacity-50 cursor-not-allowed"
                       : ""
                   }`}
-                  onClick={() =>
-                    selectedStatus !== "completed" && onApprove(task.id)
-                  }
+                  onClick={handleApprove}
                   disabled={selectedStatus === "completed"}
                 >
                   <FontAwesomeIcon icon={faCheckCircle} className="h-5 w-5" />
@@ -190,13 +229,10 @@ const TaskItem: React.FC<TaskScheduledProps> = ({
                 {task.title}
               </h2>
               <h3 className="text-gray-600 text-[12px] text-center m-1 font-semibold">
-                Date:
+                Date:{formatDate(task.createdAt)}
               </h3>
-              <RadioButton />
-              <EditableTask
-                description={description}
-                onSave={handleEditDescription}
-              />
+              <RadioButton task={task} onCategoryModal={onCategoryModal} />
+              <EditableTask task={task} onSave={handleSaveDescription} />
             </div>
           </div>
         </div>

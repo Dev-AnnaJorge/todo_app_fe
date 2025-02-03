@@ -14,9 +14,9 @@ const TaskInput = ({
     priority: string;
     category: string;
     status: string;
-    createdAt: Date;
-    updatedAt: Date;
-    completedAt: Date;
+    createdAt: string;
+    updatedAt: string;
+    completedAt: string;
   }) => void;
 }) => {
   const [title, setTitle] = useState("");
@@ -48,11 +48,11 @@ const TaskInput = ({
         `${process.env.API_URL}/api/todos`,
         payload
       );
+      toast.success("Task added successfully!");
+      console.log("lkmlml"+toast.success("Task added successfully!"))
       const { message, code, task } = response.data;
-
       if (code === 404) {
-        toast.error(message);
-        return;
+        toast.error(message)
       }
       onAddTask(task);
       setTitle("");
@@ -62,7 +62,7 @@ const TaskInput = ({
     } catch (error: any) {
       toast.error("Failed to add task");
     }
-    window.location.reload();
+    // setTimeout(() => window.location.reload(), 2000); 
   };
 
   const priorityColor = {

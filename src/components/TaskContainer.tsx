@@ -12,8 +12,8 @@ interface TaskContainerProps {
   onEdit: (task: TaskProps) => void;
   onApprove: (id: number) => void;
   onAddTask: (task: TaskProps) => void;
-  onSelect: (id: number, status:string) => void;
-
+  onSelect: (id: number, status: string) => void;
+  onCloseModal?: (id: number, category: string) => any;
 }
 
 const TaskContainer: React.FC<TaskContainerProps> = ({
@@ -22,10 +22,12 @@ const TaskContainer: React.FC<TaskContainerProps> = ({
   onEdit,
   onApprove,
   onAddTask,
-  onSelect
+  onSelect,
+  onCloseModal,
 }) => {
   const [fetchedTasks, setFetchedTasks] = useState<TaskProps[]>([]);
   const [completedTask, setCompletedTask] = useState<TaskProps[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -35,6 +37,13 @@ const TaskContainer: React.FC<TaskContainerProps> = ({
       console.error("Error fetching tasks:", error);
     }
   };
+
+  const handleCloseModal = async () => {
+    //await setIsModalOpen(false);
+    await fetchData();
+    console.log(fetchedTasks)
+  };
+
   const fetchCompletdTask = async () => {
     return await axios
       .get(`${process.env.API_URL}/api/todos/completed`)
@@ -63,6 +72,7 @@ const TaskContainer: React.FC<TaskContainerProps> = ({
             onEdit={onEdit}
             onApprove={onApprove}
             onSelect={onSelect}
+            onCategoryModal={handleCloseModal}
           />
         )}
       </div>

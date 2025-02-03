@@ -15,45 +15,49 @@ const TaskPage: React.FC = () => {
   }, []);
 
   const handleDelete = (id: number) => {
-    const updatedTasks = tasks.filter((task) => task.id !== id);
-    setTasks(updatedTasks);
-
-    const updatedCompletedTasks = completedTasks.filter(
-      (task) => task.id !== id
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+    setCompletedTasks((prevCompleted) =>
+      prevCompleted.filter((task) => task.id !== id)
     );
-    setCompletedTasks(updatedCompletedTasks);
   };
 
   const handleApprove = (id: number) => {
-    const updatedTasks = tasks.filter((task) => task.id !== id);
-    setTasks(updatedTasks);
-
-    const updatedCompletedTasks = completedTasks.filter(
-      (task) => task.id !== id
-    );
-    setCompletedTasks(updatedCompletedTasks);
+    const taskToApprove = tasks.find((task) => task.id === id);
+    if (taskToApprove) {
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+      setCompletedTasks((prevCompleted) => [...prevCompleted, taskToApprove]);
+    }
   };
 
-  // Function to handle editing a task
+  const handleAddTask = (newTask: TaskProps) => {
+    setTasks((prevTasks) => [...prevTasks, newTask]);
+  };
+
+  const handleOnSelect = (id: number) => {
+    console.log("Task selected with ID:", id);
+  };
+
   const handleEdit = (updatedTask: TaskProps) => {
-    const updatedTasks = tasks.map((task) =>
-      task.id === updatedTask.id ? updatedTask : task
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
     );
-    setTasks(updatedTasks);
   };
 
-  if (!isClient) {
-    return null;
-  }
+  if (!isClient) return null;
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6 text-center text-white">Task Management</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center text-white">
+        Task Management
+      </h1>
       <TaskContainer
         completedTasks={completedTasks}
         onDelete={handleDelete}
         onEdit={handleEdit}
         onApprove={handleApprove}
+        onAddTask={handleAddTask}
+        onSelect={handleOnSelect}
+        
         tasks={tasks}
       />
     </div>

@@ -10,14 +10,15 @@ interface TaskListProps {
   onEdit: (task: TaskProps) => void;
   onApprove: (id: number) => void;
   onSelect: (id: number, status:string) => void;
+  onCategoryModal:(id:number, category:string)=>any;
 }
 
 const TaskList: React.FC<TaskListProps> = ({
   tasks,
   onDelete,
-  onEdit,
   onApprove,
   onSelect,
+  onCategoryModal
 }) => {
   const [data, setData] = useState<TaskProps[]>([]);
 
@@ -68,11 +69,11 @@ const TaskList: React.FC<TaskListProps> = ({
                 key={task.id}
                 task={task}
                 onDelete={onDelete}
-                onEdit={onEdit}
                 onSelect={
                   handleStatusChange
                 }
                 onApprove={onApprove}
+                onCategoryModal={onCategoryModal}
               />
             ))
         )}
@@ -90,10 +91,10 @@ const TaskList: React.FC<TaskListProps> = ({
                 key={task.id}
                 task={task}
                 onDelete={onDelete}
-                onEdit={onEdit}
                 onSelect={
                   handleStatusChange
                 }
+                onCategoryModal={onCategoryModal}
                 onApprove={onApprove}
               />
             ))
