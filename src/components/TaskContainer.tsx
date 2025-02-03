@@ -77,7 +77,7 @@ const TaskContainer: React.FC<TaskContainerProps> = ({
         )}
       </div>
       <div className="bg-[#D9D9D9] shadow-md rounded-lg p-6 flex-1">
-        <h2 className="text-lg font-semibold mb-4">Accomplished</h2>
+        <h2 className="text-lg font-semibold mb-4">Accomplishments</h2>
         {completedTasks.length === 0 ? (
           <p className="text-gray-500">No completed tasks.</p>
         ) : (
