@@ -15,11 +15,16 @@
 }
 
 body {
+  @apply bg-gray-100 text-gray-900; /* ✅ Correct placement */
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 .scrollable::-webkit-scrollbar {
   display: none;
+}
+
+.text-outline {
+  -webkit-text-stroke: 1px #FEA400; /* Orange stroke */
+  color: #1f2937; /* Dark gray (Tailwind gray-800 equivalent) */
 }

@@ -59,10 +59,10 @@ const TaskContainer: React.FC<TaskContainerProps> = ({
   }, []);
 
   return (
-    <div className="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8 p-4 drop-shadow-2xl">
-      <div className="bg-[#D9D9D9] shadow-md rounded-lg p-6 flex-1">
+    <div className="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8 pt-4 px-4 drop-shadow-2xl">
+      <div className="bg-white shadow-md rounded-lg p-6 flex-1">
         <h2 className="text-xl font-semibold mb-4">Things to do</h2>
-        <TaskInput onAddTask={onAddTask} /> <br />
+        {/* <TaskInput onAddTask={onAddTask} /> <br /> */}
         {fetchedTasks.length === 0 ? (
           <p className="text-gray-500">No tasks available. Add a new task!</p>
         ) : (
@@ -74,14 +74,6 @@ const TaskContainer: React.FC<TaskContainerProps> = ({
             onSelect={onSelect}
             onCategoryModal={handleCloseModal}
           />
-        )}
-      </div>
-      <div className="bg-[#D9D9D9] shadow-md rounded-lg p-6 flex-1">
-        <h2 className="text-lg font-semibold mb-4">Accomplishments</h2>
-        {completedTasks.length === 0 ? (
-          <p className="text-gray-500">No completed tasks.</p>
-        ) : (
-          <CompletedTasks tasksProps={completedTasks} onDelete={onDelete} />
         )}
       </div>
     </div>

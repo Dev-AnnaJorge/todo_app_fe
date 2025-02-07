@@ -18,7 +18,6 @@ const TaskInput = ({
     updatedAt: string;
     completedAt: string;
     effortBurn?: number;
-    content: string;
   }) => void;
 }) => {
   const [title, setTitle] = useState("");
@@ -65,6 +64,7 @@ const TaskInput = ({
       setDescription("");
       setPriority("high");
       setSelectedCategory("scheduled");
+
     } catch (error: any) {
       toast.error("Failed to add task");
     }
@@ -78,7 +78,7 @@ const TaskInput = ({
   }[priority];
 
   return (
-    <div className="bg-[#F5E8E8] p-4 rounded-md flex items-center justify-between">
+    <div className="bg-[#F5E8E8] p-4 rounded-md flex items-center justify-between w-10/12">
       <div className="flex-1 font-bold flex flex-col">
         <input
           type="text"
@@ -121,7 +121,7 @@ const TaskInput = ({
         </div>
 
         <button
-          className="bg-gray-300 p-2 rounded-full border border-black text-black hover:bg-gray-400"
+          className="bg-transparent p-2 rounded-full border border-[#FEA400] text-[#FEA400] hover:bg-[#f5e1bc] transition"
           onClick={handleAddTask}
         >
           <FontAwesomeIcon icon={faPlus} className="w-5" />

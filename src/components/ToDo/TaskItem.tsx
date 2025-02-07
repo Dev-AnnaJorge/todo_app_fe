@@ -3,6 +3,7 @@ import {
   faTrashCan,
   faCheckCircle,
   faCircleXmark,
+  faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
@@ -35,10 +36,15 @@ const TaskItem: React.FC<TaskScheduledProps> = ({
   );
   //retrieving data after closing moodal
   const [data, newData] = useState<[]>([]);
+  const [isStarred, setIsStarred] = useState(false);
 
   useEffect(() => {
     setSelectedStatus(task.status);
   }, [task.status]);
+
+  const toggleStar = () => {
+    setIsStarred((prev) => !prev);
+  };
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => {
@@ -147,6 +153,13 @@ const TaskItem: React.FC<TaskScheduledProps> = ({
     <div className="flex flex-col w-full border-2 p-2 rounded-lg mt-2">
       <div className="flex w-full items-center justify-between">
         <div className="flex w-full items-center justify-between bg-[#F5E8E8] p-4 rounded-full shadow">
+        <FontAwesomeIcon
+            icon={faStar}
+            className={`cursor-pointer transition-colors text-xl ${
+              isStarred ? "text-yellow-500" : "text-gray-400"
+            }`}
+            onClick={toggleStar}
+          />
           <div className="flex flex-col w-2/3">
             <h3
               className="text-lg font-semibold cursor-pointer"

@@ -93,7 +93,7 @@ export default function Calendar() {
           <div
             className={`flex justify-center items-center h-10 w-full m-1 cursor-pointer ${
               isSameMonth(day, monthStart) ? "" : "text-gray-400"
-            } ${isSameDay(day, selectedDate) ? "bg-blue-500 text-white rounded-full" : ""}`}
+            } ${isSameDay(day, selectedDate) ? "bg-blue-500 text-[#FEA400] rounded-full" : ""}`}
             key={day.toString()}
             onClick={() => onDateClick(cloneDay)}
           >
@@ -115,7 +115,7 @@ export default function Calendar() {
     <div className="relative inline-block" ref={calendarRef}>
       <button
         onClick={toggleCalendar}
-        className="flex items-center space-x-2 p-2 text-white rounded-lg hover:bg-blue-600"
+        className="flex items-center space-x-2 p-2 text-gray-700 rounded-lg hover:bg-blue-600"
       >
         <FontAwesomeIcon icon={faCalendar} className="h-5 w-5" />
         <span>{format(selectedDate, "MMM d, yyyy")}</span>
