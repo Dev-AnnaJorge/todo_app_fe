@@ -17,6 +17,8 @@ const TaskInput = ({
     createdAt: string;
     updatedAt: string;
     completedAt: string;
+    effortBurn?: number;
+    content: string;
   }) => void;
 }) => {
   const [title, setTitle] = useState("");
@@ -76,7 +78,7 @@ const TaskInput = ({
   }[priority];
 
   return (
-    <div className="bg-gray-200 p-4 rounded-md flex items-center justify-between">
+    <div className="bg-[#F5E8E8] p-4 rounded-md flex items-center justify-between">
       <div className="flex-1 font-bold flex flex-col">
         <input
           type="text"

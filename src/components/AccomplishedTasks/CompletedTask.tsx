@@ -34,7 +34,7 @@ const CompletedTasks: React.FC<CompletedTasksProps> = ({
   return (
     <div>
       {/* Scheduled Tasks */}
-      <h1 className="text-xl font-semibold">Scheduled</h1>
+      <h1 className="text-xl font-semibold">Accomplishments</h1>
       <div className="bg-transparent p-4 rounded-lg shadow-md h-52 overflow-y-auto">
         {completedTasks.filter((task) => task.category === "scheduled").length === 0 ? (
           <p className="text-gray-500">No scheduled tasks available.</p>
@@ -45,7 +45,7 @@ const CompletedTasks: React.FC<CompletedTasksProps> = ({
         )}
       </div>
 
-      {/* Unscheduled Tasks */}
+      {/* Unscheduled Tasks
       <h1 className="text-xl font-semibold mt-10">Unscheduled</h1>
       <div className="bg-transparent p-4 border-spacing-32 rounded-lg shadow-md h-56 overflow-y-auto">
         {completedTasks.filter((task) => task.category === "unscheduled").length === 0 ? (
@@ -55,7 +55,7 @@ const CompletedTasks: React.FC<CompletedTasksProps> = ({
             .filter((task) => task.category === "unscheduled")
             .map((task) => <CompletedSchedule key={task.id} task={task} />)
         )}
-      </div>
+      </div> */}
     </div>
   );
 };

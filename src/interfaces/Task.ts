@@ -8,5 +8,6 @@ export interface TaskProps {
   createdAt: string,
   updatedAt: string,
   completedAt: string,
-  effortBurn?:number
+  effortBurn?:number,
+  content:string
 }

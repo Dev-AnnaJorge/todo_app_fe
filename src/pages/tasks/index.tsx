@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import TaskContainer from "@/components/TaskContainer";
 import { TaskProps } from "@/interfaces";
 import { initialCompletedTasks, initialTasks } from "./dataExample";
+import TaskInput from "@/components/ToDo/TaskInput";
+import CalendarPopup from "@/Providers/Calendar";
+import Summary from "@/components/ToDo/TasksSummary/Summary";
+import BarGraph from "@/components/WeeklySummary/BarGraph";
 
 const TaskPage: React.FC = () => {
   const [tasks, setTasks] = useState<TaskProps[]>(initialTasks);
@@ -46,22 +50,38 @@ const TaskPage: React.FC = () => {
   if (!isClient) return null;
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6 text-center text-white">
-        Task Management
-      </h1>
-      <TaskContainer
+    <div className="mt-5 mx-4 sm:mx-10">
+      <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
+        <h1 className="text-xl sm:text-2xl font-bold text-white">
+          Productivity Tracker
+        </h1>
+        <div className="flex-1 w-full sm:w-auto min-w-[200px]">
+          <TaskInput onAddTask={handleAddTask} />
+        </div>
+        <div className="relative w-full sm:w-auto">
+          <CalendarPopup />
+        </div>
+      </div>
+      <div>
+        <Summary task={tasks[0]} onSave={() => {}} />
+      </div>
+      <div className="flex justify-start bg-transparent">
+      <BarGraph />
+    </div>
+    </div>
+  );
+};
+
+export default TaskPage;
+
+{
+  /* <TaskContainer
         completedTasks={completedTasks}
         onDelete={handleDelete}
         onEdit={handleEdit}
         onApprove={handleApprove}
         onAddTask={handleAddTask}
         onSelect={handleOnSelect}
-        
         tasks={tasks}
-      />
-    </div>
-  );
-};
-
-export default TaskPage;
+      /> */
+}
