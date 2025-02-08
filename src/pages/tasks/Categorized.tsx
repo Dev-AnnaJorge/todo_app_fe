@@ -1,50 +1,28 @@
 import React, { useEffect, useState } from "react";
 import TaskContainer from "@/components/TaskContainer";
-import { TaskProps } from "@/interfaces";
-import { initialCompletedTasks, initialTasks } from "./dataExample";
+import { observer } from "mobx-react-lite";
 import Summary from "@/components/ToDo/TasksSummary/Summary";
 import BarGraph from "@/components/WeeklySummary/BarGraph";
+import fetchStore from "@/stores/fetchStore";
+import { format } from "date-fns"; 
 
-const Categorized: React.FC = () => {
-  const [tasks, setTasks] = useState<TaskProps[]>(initialTasks);
-  const [completedTasks, setCompletedTasks] = useState<TaskProps[]>(
-    initialCompletedTasks
-  );
+interface CategorizedProps {
+  selectedDate: Date;
+}
+
+const Categorized: React.FC<CategorizedProps> = observer(({ selectedDate }) => {
   const [isClient, setIsClient] = useState(false);
   const [scheduled, setScheduled] = useState(true);
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    const formattedDate = format(selectedDate, "yyyy-MM-dd");
 
-  const handleDelete = (id: number) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
-    setCompletedTasks((prevCompleted) =>
-      prevCompleted.filter((task) => task.id !== id)
-    );
-  };
-
-  const handleApprove = (id: number) => {
-    const taskToApprove = tasks.find((task) => task.id === id);
-    if (taskToApprove) {
-      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
-      setCompletedTasks((prevCompleted) => [...prevCompleted, taskToApprove]);
-    }
-  };
-
-  const handleAddTask = (newTask: TaskProps) => {
-    setTasks((prevTasks) => [...prevTasks, newTask]);
-  };
-
-  const handleOnSelect = (id: number) => {
-    console.log("Task selected with ID:", id);
-  };
-
-  const handleEdit = (updatedTask: TaskProps) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
-    );
-  };
+    fetchStore.fetchTodos();
+    fetchStore.fetchSummary(formattedDate);
+    fetchStore.fetchWeeklyTasks("scheduled");
+    fetchStore.AllNotes("content", formattedDate);
+  }, [selectedDate]); // Re-run when selectedDate changes
 
   if (!isClient) return null;
 
@@ -67,7 +45,7 @@ const Categorized: React.FC = () => {
 
       {/* Summary */}
       <div>
-        <Summary task={tasks[0]} onSave={() => {}} />
+        <Summary task={fetchStore.tasks[0]} onSave={() => {}} />
       </div>
 
       {/* Bar Graph */}
@@ -78,17 +56,17 @@ const Categorized: React.FC = () => {
       {/* Task Container */}
       <div>
         <TaskContainer
-          completedTasks={completedTasks}
-          onDelete={handleDelete}
-          onEdit={handleEdit}
-          onApprove={handleApprove}
-          onAddTask={handleAddTask}
-          onSelect={handleOnSelect}
-          tasks={tasks}
+          completedTasks={fetchStore.completedTasks}
+          onDelete={fetchStore.deleteTask}
+          onEdit={fetchStore.editTask}
+          onApprove={fetchStore.approveTask}
+          onAddTask={fetchStore.addTask}
+          onSelect={(id) => console.log("Task selected with ID:", id)}
+          tasks={fetchStore.tasks}
         />
       </div>
     </div>
   );
-};
+});
 
 export default Categorized;

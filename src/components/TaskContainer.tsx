@@ -26,8 +26,6 @@ const TaskContainer: React.FC<TaskContainerProps> = ({
   onCloseModal,
 }) => {
   const [fetchedTasks, setFetchedTasks] = useState<TaskProps[]>([]);
-  const [completedTask, setCompletedTask] = useState<TaskProps[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -39,23 +37,13 @@ const TaskContainer: React.FC<TaskContainerProps> = ({
   };
 
   const handleCloseModal = async () => {
-    //await setIsModalOpen(false);
     await fetchData();
     console.log(fetchedTasks)
   };
 
-  const fetchCompletdTask = async () => {
-    return await axios
-      .get(`${process.env.API_URL}/api/todos/completed`)
-      .then((res) => {
-        setCompletedTask(res.data);
-      });
-  };
-  console.log({ completedTask });
 
   useEffect(() => {
     fetchData();
-    fetchCompletdTask();
   }, []);
 
   return (

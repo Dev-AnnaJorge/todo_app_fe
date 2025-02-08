@@ -14,21 +14,19 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar } from "@fortawesome/free-solid-svg-icons";
 
-export default function Calendar() {
+interface CalendarProps {
+  selectedDate: Date;
+  setSelectedDate: (date: Date) => void;
+}
+
+const CalendarPopUp: React.FC<CalendarProps> = ({ selectedDate, setSelectedDate }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(new Date());
   const [isOpen, setIsOpen] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
 
   const toggleCalendar = () => setIsOpen((prev) => !prev);
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
-
-  interface DayProps {
-    day: Date;
-    formattedDate: string;
-    cloneDay: Date;
-  }
 
   const onDateClick = (day: Date): void => {
     setSelectedDate(day);
@@ -38,7 +36,7 @@ export default function Calendar() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
-      setIsOpen(false);
+        setIsOpen(false);
       }
     };
 
@@ -121,7 +119,7 @@ export default function Calendar() {
         <span>{format(selectedDate, "MMM d, yyyy")}</span>
       </button>
       {isOpen && (
-         <div className="absolute top-12 left-0 sm:right-auto sm:left-[-150px] shadow-lg rounded-lg bg-white w-56 border z-50">
+        <div className="absolute top-12 left-0 sm:right-auto sm:left-[-150px] shadow-lg rounded-lg bg-white w-56 border z-50">
           {renderHeader()}
           {renderDays()}
           {renderCells()}
@@ -129,4 +127,6 @@ export default function Calendar() {
       )}
     </div>
   );
-}
+};
+
+export default CalendarPopUp;
