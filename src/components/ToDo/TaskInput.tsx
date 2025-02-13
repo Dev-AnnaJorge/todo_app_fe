@@ -1,29 +1,19 @@
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { format } from "date-fns";
+import { TaskProps } from "@/interfaces";
 
-const TaskInput = ({
-  onAddTask,
-}: {
-  onAddTask: (task: {
-    id: number;
-    title: string;
-    description: string;
-    priority: string;
-    category: string;
-    status: string;
-    createdAt: string;
-    updatedAt: string;
-    completedAt: string;
-    effortBurn?: number;
-  }) => void;
-}) => {
+const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("high");
   const [selectedCategory, setSelectedCategory] = useState("scheduled");
+  const [selectedDate, setSelectedDate] = useState(
+    format(new Date(), "yyyy-MM-dd")
+  ); // Default to today
 
   const handlePriorityChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -37,40 +27,49 @@ const TaskInput = ({
     setSelectedCategory(event.target.value);
   };
 
+  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedDate(event.target.value);
+  };
+
   const handleAddTask = async () => {
     if (!title || !description) {
-      toast.error("Please provide the empty fields");
+      toast.error("Please fill in all fields");
       return;
     }
+
     try {
+      console.log("new Date(selectedDate).toISOString(),",new Date(selectedDate).toISOString(),);
       const payload = {
-        title: title,
-        description: description,
-        priority: priority,
+        title,
+        description,
+        priority,
         category: selectedCategory.toLowerCase(),
+        createdAt: new Date(selectedDate), // Use selected date
       };
+
       const response = await axios.post(
         `${process.env.API_URL}/api/todos`,
         payload
       );
+
       toast.success("Task added successfully!");
 
       const { message, code, task } = response.data;
       if (code === 404) {
         toast.error(message);
       }
+
       onAddTask(task);
       setTitle("");
       setDescription("");
       setPriority("high");
       setSelectedCategory("scheduled");
-
+      setSelectedDate(selectedDate); // Reset date
     } catch (error: any) {
       toast.error("Failed to add task");
     }
     setTimeout(() => window.location.reload(), 2000);
   };
-
   const priorityColor = {
     high: "text-red-500",
     medium: "text-yellow-500",
@@ -109,16 +108,22 @@ const TaskInput = ({
           <option value="low">LOW</option>
         </select>
 
-        <div className="relative">
-          <select
-            value={selectedCategory.toLowerCase()}
-            onChange={handleCategoryChange}
-            className="rounded-md p-1 bg-transparent"
-          >
-            <option value="scheduled">Scheduled</option>
-            <option value="unscheduled">Unscheduled</option>
-          </select>
-        </div>
+        <select
+          value={selectedCategory.toLowerCase()}
+          onChange={handleCategoryChange}
+          className="rounded-md p-1 bg-transparent"
+        >
+          <option value="scheduled">Scheduled</option>
+          <option value="unscheduled">Unscheduled</option>
+        </select>
+
+        {/* Date Picker for selecting future dates */}
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={handleDateChange}
+          className="rounded-md p-1 bg-transparent border border-gray-300"
+        />
 
         <button
           className="bg-transparent p-2 rounded-full border border-[#FEA400] text-[#FEA400] hover:bg-[#f5e1bc] transition"

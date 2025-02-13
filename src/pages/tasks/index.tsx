@@ -7,45 +7,26 @@ import CalendarPopup from "@/Providers/Calendar";
 import Categorized from "./Categorized";
 import { observer } from "mobx-react-lite";
 import fetchStore from "@/stores/fetchStore";
-import { format } from "date-fns";  // Import format from date-fns
+import { format } from "date-fns"; // Import format from date-fns
 
 const TaskPage: React.FC = observer(() => {
   const [tasks, setTasks] = useState<TaskProps[]>(initialTasks);
-  const [completedTasks, setCompletedTasks] = useState<TaskProps[]>(initialCompletedTasks);
+  const [completedTasks, setCompletedTasks] = useState<TaskProps[]>(
+    initialCompletedTasks
+  );
   const [isClient, setIsClient] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date()); // Store selected date
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [scheduled, setScheduled] = useState(true);
+  const category = scheduled ? "scheduled" : "unscheduled";
 
   useEffect(() => {
     setIsClient(true);
-    fetchStore.fetchTodos(); 
-    fetchStore.fetchCompleted(format(selectedDate, "yyyy-MM-dd")); // Fetch based on selected date
-  }, [selectedDate]); // Fetch tasks when date changes
-
-  const handleDelete = (id: number) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
-    setCompletedTasks((prevCompleted) => prevCompleted.filter((task) => task.id !== id));
-  };
-
-  const handleApprove = (id: number) => {
-    const taskToApprove = tasks.find((task) => task.id === id);
-    if (taskToApprove) {
-      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
-      setCompletedTasks((prevCompleted) => [...prevCompleted, taskToApprove]);
-    }
-  };
+    fetchStore.fetchTodos();
+    fetchStore.fetchCompleted(format(selectedDate, "yyyy-MM-dd"), category); // Fetch based on selected date
+  }, [selectedDate,scheduled]); // Fetch tasks when date changes
 
   const handleAddTask = (newTask: TaskProps) => {
     setTasks((prevTasks) => [...prevTasks, newTask]);
-  };
-
-  const handleOnSelect = (id: number) => {
-    console.log("Task selected with ID:", id);
-  };
-
-  const handleEdit = (updatedTask: TaskProps) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
-    );
   };
 
   return (
@@ -58,11 +39,14 @@ const TaskPage: React.FC = observer(() => {
           <TaskInput onAddTask={handleAddTask} />
         </div>
         <div className="absolute right-36 top-10 z-50">
-          <CalendarPopup selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+          <CalendarPopup
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+          />
         </div>
       </div>
       <div>
-        <Categorized selectedDate={selectedDate} />
+        <Categorized selectedDate={selectedDate} tasks={tasks} />
       </div>
     </div>
   );

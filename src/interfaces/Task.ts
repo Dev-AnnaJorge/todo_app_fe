@@ -1,4 +1,5 @@
 export interface TaskProps {
+  important: boolean;
   id: number;
   title: string;
   description: string;
@@ -9,5 +10,11 @@ export interface TaskProps {
   updatedAt: string,
   completedAt: string,
   effortBurn?:number,
-  content:string
+}
+
+export interface TaskNoteProps {
+  id: number;
+  createdAt: string,
+  updatedAt: string,
+  content: string,
 }

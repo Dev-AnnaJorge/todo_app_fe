@@ -1,8 +1,10 @@
+
 export const TodoRoutes = {
     todos: '/api/todos',
+    todosbydate:'/api/todos/getByDate',
     completed: '/api/todos/completed',
     summary: '/api/todos/summary',
     weeklyTasks: '/api/todos/getWeeklyTasks',
-    note: '/api/note',
-    updatenote: '/api/note/getByDate',
+    notes: '/api/note',
+    notesbydate: '/api/note/getByDate',
 }

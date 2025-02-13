@@ -10,11 +10,19 @@ const GetTodosService = async (route: string): Promise<AxiosPromise | any>=>{
         throw err;
     }
 }
+const GetTodoByDateService = async (route: string, data: any): Promise<AxiosPromise | any>=>{
+    try{
+        const res = await TodoApi.post(route, data)
+        
+        return res;
+    }catch(err){
+        throw err;
+    }
+}
 
 const GetTodosCompletedService = async (route: string, data: any): Promise<AxiosPromise | any>=>{
     try{
         const res = await TodoApi.post(route, data)
-console.log(res);
 
         return res;
     }catch(err){
@@ -42,19 +50,23 @@ const GetTodosWeeklyTasksService = async (route: string, data: any): Promise<Axi
         throw err;
     }
 }
-
 const GetAllNotes = async (route: string, data: any): Promise<AxiosPromise | any>=>{
     try{
-        const res = await TodoApi.post(route,data)
-        console.log(res);
+        const res = await TodoApi.post(route, data)
         return res;
-      
     }catch(err){
         throw err;
     }
 }
 
-
+const GetAllNotesByDate = async (route: string, data: any): Promise<AxiosPromise | any>=>{
+    try{
+        const res = await TodoApi.post(route, data)
+        return res;
+    }catch(err){
+        console.error (err);
+    }
+}
 
 export { 
     GetTodosService,
@@ -62,4 +74,7 @@ export {
      GetTodosSummaryService, 
      GetTodosWeeklyTasksService,
      GetAllNotes,
+     GetAllNotesByDate,
+     GetTodoByDateService
+    
     };
