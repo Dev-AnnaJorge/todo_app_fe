@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 import { TaskProps } from "@/interfaces";
+import fetchStore from "@/stores/fetchStore";
 
 const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
   const [title, setTitle] = useState("");
@@ -24,7 +25,13 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
   const handleCategoryChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    setSelectedCategory(event.target.value);
+    const category = event.target.value;
+    setSelectedCategory(category);
+
+    // If "unscheduled" is selected, force the date to be today
+    if (category === "unscheduled") {
+      setSelectedDate(format(new Date(), "yyyy-MM-dd"));
+    }
   };
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,45 +43,48 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
       toast.error("Please fill in all fields");
       return;
     }
-
     try {
-      console.log("new Date(selectedDate).toISOString(),",new Date(selectedDate).toISOString(),);
       const payload = {
         title,
         description,
         priority,
         category: selectedCategory.toLowerCase(),
-        createdAt: new Date(selectedDate), // Use selected date
+        createdAt: new Date(selectedDate),
       };
 
       const response = await axios.post(
         `${process.env.API_URL}/api/todos`,
         payload
       );
-
       toast.success("Task added successfully!");
+      const { task } = response.data;
 
-      const { message, code, task } = response.data;
-      if (code === 404) {
-        toast.error(message);
+      if (task) {
+        fetchStore.addTask(task); // Add task to MobX store
+        onAddTask(task); // Callback to the parent if necessary
       }
 
-      onAddTask(task);
+      // Reset form fields
       setTitle("");
       setDescription("");
       setPriority("high");
       setSelectedCategory("scheduled");
-      setSelectedDate(selectedDate); // Reset date
+      setSelectedDate(format(new Date(), "yyyy-MM-dd"));
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error: any) {
       toast.error("Failed to add task");
     }
-    setTimeout(() => window.location.reload(), 2000);
   };
+
   const priorityColor = {
     high: "text-red-500",
     medium: "text-yellow-500",
     low: "text-blue-500",
   }[priority];
+
+  const todayDate = format(new Date(), "yyyy-MM-dd");
 
   return (
     <div className="bg-[#F5E8E8] p-4 rounded-md flex items-center justify-between w-10/12">
@@ -117,12 +127,15 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
           <option value="unscheduled">Unscheduled</option>
         </select>
 
-        {/* Date Picker for selecting future dates */}
+        {/* Date Picker for selecting dates */}
         <input
           type="date"
           value={selectedDate}
           onChange={handleDateChange}
           className="rounded-md p-1 bg-transparent border border-gray-300"
+          min={selectedCategory === "scheduled" ? todayDate : todayDate} // Scheduled: allow today & future, Unscheduled: only today
+          max={selectedCategory === "unscheduled" ? todayDate : undefined} // Unscheduled: restrict to today
+          disabled={selectedCategory === "unscheduled"} // Disable manual selection for unscheduled
         />
 
         <button

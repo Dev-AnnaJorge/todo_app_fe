@@ -11,9 +11,6 @@ import { format } from "date-fns"; // Import format from date-fns
 
 const TaskPage: React.FC = observer(() => {
   const [tasks, setTasks] = useState<TaskProps[]>(initialTasks);
-  const [completedTasks, setCompletedTasks] = useState<TaskProps[]>(
-    initialCompletedTasks
-  );
   const [isClient, setIsClient] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [scheduled, setScheduled] = useState(true);
@@ -22,8 +19,8 @@ const TaskPage: React.FC = observer(() => {
   useEffect(() => {
     setIsClient(true);
     fetchStore.fetchTodos();
-    fetchStore.fetchCompleted(format(selectedDate, "yyyy-MM-dd"), category); // Fetch based on selected date
-  }, [selectedDate,scheduled]); // Fetch tasks when date changes
+    fetchStore.fetchCompleted(format(selectedDate, "yyyy-MM-dd"), category);
+  }, [selectedDate,scheduled]);
 
   const handleAddTask = (newTask: TaskProps) => {
     setTasks((prevTasks) => [...prevTasks, newTask]);
@@ -35,7 +32,7 @@ const TaskPage: React.FC = observer(() => {
         <h1 className="text-2xl sm:text-2xl font-bold text-gray-700 ml-12">
           Task Tracker
         </h1>
-        <div className="flex-1 w-full sm:w-auto min-w-[200px]">
+        <div className="flex-1 w-full md:w-1/2 sm:w-auto min-w-[200px]">
           <TaskInput onAddTask={handleAddTask} />
         </div>
         <div className="absolute right-36 top-10 z-50">

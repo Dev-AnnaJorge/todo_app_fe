@@ -6,5 +6,5 @@ export const TodoRoutes = {
     summary: '/api/todos/summary',
     weeklyTasks: '/api/todos/getWeeklyTasks',
     notes: '/api/note',
-    notesbydate: '/api/note/getByDate',
+    notesbydate: '/api/note/getByDate'
 }

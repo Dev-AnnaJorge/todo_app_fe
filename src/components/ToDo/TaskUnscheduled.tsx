@@ -11,10 +11,10 @@ import EditableTask from "../Modals/EditableDescription";
 import Select from "react-select";
 import RadioButton from "../Buttons/RadioButton";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
-import toast from "react-hot-toast";
-import fetchStore from "@/stores/fetchStore";
 import { observer } from "mobx-react-lite";
+import fetchStore from "@/stores/fetchStore";
 
 interface TaskUnScheduledProps {
   task: TaskProps;
@@ -23,15 +23,16 @@ interface TaskUnScheduledProps {
   onCategoryModal: (id: number, category: string) => any;
 }
 
-const TaskUnscheduled: React.FC<TaskUnScheduledProps> = observer(
+const TaskUnScheduled: React.FC<TaskUnScheduledProps> = observer(
   ({ task, onApprove, onSelect, onCategoryModal }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [description, setDescription] = useState(task?.description);
     const [selectedStatus, setSelectedStatus] = useState<string | undefined>(
       task.status
     );
-    const [isStarred, setIsStarred] = useState(task?.important ?? false);
+    const [isStarred, setIsStarred] = useState(task.important);
     const [effortBurn, setEffortBurn] = useState(task?.effortBurn);
+    const [taskState, setTaskState] = useState<TaskProps>(task);
 
     useEffect(() => {
       setSelectedStatus(task.status);
@@ -41,31 +42,50 @@ const TaskUnscheduled: React.FC<TaskUnScheduledProps> = observer(
 
     const toggleStar = async () => {
       try {
-        setIsStarred((prev) => !prev);
         const newImportantValue = !isStarred;
+        setIsStarred(newImportantValue);
 
+        if (newImportantValue) {
+          localStorage.setItem(`task-${task.id}-starred`, "true");
+        } else {
+          localStorage.removeItem(`task-${task.id}-starred`);
+        }
         await axios.put(
           `${process.env.API_URL}/api/todos/${task.id}/importance=${newImportantValue}`
         );
 
-        // Update MobX store if needed
         fetchStore.updateTaskImportance(task.id, newImportantValue);
-
-        if (newImportantValue) {
-          toast.success("Marked as important");
-        }
+        toast.success(
+          newImportantValue ? "Marked as important" : "Unmarked as important"
+        );
       } catch (error) {
         console.error("Error updating importance:", error);
-        setIsStarred((prev) => !prev); // Revert state if error occurs
+        toast.error("Failed to update importance.");
+        setIsStarred((prev: any) => !prev);
       }
     };
+
+    useEffect(() => {
+      const starred =
+        localStorage.getItem(`task-${task.id}-starred`) === "true";
+      setIsStarred(starred);
+    }, [task.id]);
+
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => {
       onCategoryModal(task.id, task.category);
       setIsModalOpen(false);
+      
     };
 
-    // Handle status change and update backend
+    const handleCategoryChange = async (newCategory: string) => {
+      const updatedTask = {
+        ...taskState,
+        category: newCategory,
+      };
+      setTaskState(updatedTask); // Update local state
+    };
+
     const handleSelect = async (selectedOption: any) => {
       const newStatus = selectedOption.value;
       setSelectedStatus(newStatus);
@@ -107,6 +127,7 @@ const TaskUnscheduled: React.FC<TaskUnScheduledProps> = observer(
         <ThumbUpIcon />
       </div>
     );
+
     const handleApprove = async () => {
       const completedStatus = "completed";
       const completedDate = new Date().toISOString();
@@ -132,18 +153,30 @@ const TaskUnscheduled: React.FC<TaskUnScheduledProps> = observer(
       onSelect?.(task.id, completedStatus);
     };
 
-    const handleSaveDescription = async (newDescription: string) => {
+    const handleSaveDescription = async (
+      newDescription: string,
+      newCategory: string
+    ) => {
+      handleCategoryChange(newCategory);
       setDescription(newDescription);
       try {
         await axios.put(`${process.env.API_URL}/api/todos/update`, {
           id: task.id,
           title: task.title,
-          category: task.category,
+          category: newCategory, // Use the updated category
           description: newDescription,
         });
         toast.success("Task updated successfully!");
-        setIsModalOpen(false);
-        fetchStore.editTask({ ...task, description: newDescription }); // Update the MobX store
+        fetchStore.editTask({
+          ...task,
+          description: newDescription,
+          category: newCategory, // Use the updated category
+        });
+        setTaskState((prev) => ({
+          ...prev,
+          description: newDescription,
+          category: newCategory,
+        }));
       } catch (error) {
         toast.error("Failed to update task.");
         console.error("Error updating task:", error);
@@ -268,7 +301,6 @@ const TaskUnscheduled: React.FC<TaskUnScheduledProps> = observer(
                 <h3 className="text-gray-600 text-[12px] text-center m-1 font-semibold">
                   Date: {formatDate(task.createdAt)}
                 </h3>
-                <RadioButton task={task} />
                 <EditableTask task={task} onSave={handleSaveDescription} />
               </div>
             </div>
@@ -278,7 +310,6 @@ const TaskUnscheduled: React.FC<TaskUnScheduledProps> = observer(
     );
   }
 );
-
 // Function to determine priority color
 const getPriorityColor = (priority: string) => {
   switch (priority.toUpperCase()) {
@@ -293,4 +324,4 @@ const getPriorityColor = (priority: string) => {
   }
 };
 
-export default TaskUnscheduled;
+export default TaskUnScheduled;

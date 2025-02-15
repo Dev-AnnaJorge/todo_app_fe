@@ -16,43 +16,54 @@ interface EditableNoteProps {
 }
 
 const Summary: React.FC<EditableNoteProps> = observer(
-  ({ onSave, selectedDate}) => {
+  ({ notes, onSave, selectedDate }) => {
     const summary = fetchStore.summaryTasks;
     const [isEditing, setIsEditing] = useState(false);
-    const [content, setContent] = useState<string>(fetchStore.notes.content);
+    const [content, setContent] = useState<string>("");
 
     useEffect(() => {
       const fetchData = async () => {
-        const formattedDate = format(selectedDate, "yyyy-MM-dd");
-        await fetchStore.fetchNotesByDate(formattedDate);
-        setContent(fetchStore.notesbydate?.content || "");
+        try {
+          const formattedDate = format(selectedDate, "yyyy-MM-dd");
+          await fetchStore.fetchNotesByDate(formattedDate);
+          console.log(
+            "Fetched notes content:",
+            fetchStore.notesbydate?.content
+          );
+          setContent(fetchStore.notesbydate?.content || "");
+        } catch (error) {
+          console.error("Error fetching notes:", error);
+          setContent(""); 
+        }
       };
       fetchData();
     }, [selectedDate]);
-    // console.log(fetchStore.fetchNotesByDate);
 
     const handleEditClick = () => setIsEditing(true);
 
     const handleSaveClick = async () => {
       if (content.length === 0) {
-        toast.error("The feild is empty");
+        toast.error("The field is empty");
+        return;
       }
       try {
-        const payload = {
-          createdAt: selectedDate.toISOString(),
-          content: content,
-        };
-
-        await fetchStore.fetchNotes(payload.createdAt, payload.content);
+        const formattedDate = format(selectedDate, "yyyy-MM-dd");
+        if (fetchStore.notesbydate?.content) {
+          await fetchStore.updateNoteByDate(formattedDate, content);
+        } else {
+          await fetchStore.fetchNotes(formattedDate, content);
+        }
         toast.success("Note saved successfully!");
         onSave(content);
         setIsEditing(false);
+
+        // Refresh the notes to display the updated content
+        await fetchStore.fetchNotesByDate(formattedDate);
       } catch (error) {
         console.error("Error saving note:", error);
         toast.error("Failed to save note.");
       }
     };
-
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setContent(e.target.value);
     };
@@ -91,7 +102,7 @@ const Summary: React.FC<EditableNoteProps> = observer(
           {/* What Went Wrong Box */}
           <div className="w-1/2 h-32 bg-[#F5DFB5] flex flex-col items-start justify-center rounded-lg shadow-lg relative p-4">
             <span className="absolute top-2 text-outline text-lg mb-4">
-              What Went Wrong?
+              Note
             </span>
             {isEditing ? (
               <textarea

@@ -22,20 +22,81 @@ const BarGraph: React.FC<BarGraphProps> = observer(({ scheduled }) => {
   useEffect(() => {
     const category = scheduled ? "scheduled" : "unscheduled";
     fetchStore.fetchWeeklyTasks(category);
-  }, [scheduled]); 
+  }, [scheduled]);
 
+  const daysOfWeek = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
+
+  function getDateForDay(dayIndex: number): string {
+    const currentDate = new Date();
+    const currentDayIndex = currentDate.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+    const mondayDate = new Date(currentDate);
+    mondayDate.setDate(currentDate.getDate() - ((currentDayIndex + 6) % 7)); // Correct Monday calculation
+    const dayDate = new Date(mondayDate);
+    dayDate.setDate(mondayDate.getDate() + dayIndex);
+    return dayDate.toISOString().split("T")[0];
+  }
+
+  const todayDate = new Date().toISOString().split("T")[0];
   const weeklyTasks = fetchStore.weeklyTasks;
-  const chartData = Object.entries(weeklyTasks).map(([day, data]) => {
-    const taskData = data as {
+  const chartData = daysOfWeek.map((day, index) => {
+    const taskData = (weeklyTasks[day] as {
+      date: string;
       complete: string | number;
       incomplete: string | number;
-    };
+    }) || { date: null, complete: 0, incomplete: 0 };
+    const date = getDateForDay(index);
+
     return {
       name: day,
-      completed: Number(taskData.complete),
-      incomplete: Number(taskData.incomplete),
+      date: date,
+      completed: taskData.complete ? Number(taskData.complete) : 0,
+      incomplete: taskData.incomplete ? Number(taskData.incomplete) : 0,
     };
   });
+  chartData.forEach((data) => {});
+
+  const renderCustomTick = (tickProps: any) => {
+    const { x, y, payload } = tickProps;
+    const { value } = payload;
+    const item = chartData.find((d) => d.name === value);
+    if (!item) return <g />;
+
+    const isToday = item.date === todayDate; // Check if the date is today
+
+    return (
+      <g transform={`translate(${x},${y + 10})`}>
+        <text
+          x={0}
+          y={0}
+          textAnchor="middle"
+          fill="#666"
+          fontSize="12px"
+          fontWeight="bold"
+        >
+          {item.name}
+        </text>
+        <text
+          x={0}
+          y={15}
+          textAnchor="middle"
+          fill={isToday ? "#666" : "#999"}
+          fontSize="11px"
+          fontWeight={isToday ? "bold" : "normal"}
+        >
+          {item.date}
+        </text>
+      </g>
+    );
+  };
+
   return (
     <div className="flex bg-transparent shadow-lg rounded-lg w-full gap-4">
       {/* Bar Chart */}
@@ -46,8 +107,13 @@ const BarGraph: React.FC<BarGraphProps> = observer(({ scheduled }) => {
         {chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={chartData} barCategoryGap="20%">
-              <Legend />
-              <XAxis dataKey="name" />
+              <Legend
+                layout="horizontal"
+                verticalAlign="bottom"
+                align="center"
+                wrapperStyle={{ padding: "16px", fontSize: "14px" }}
+              />
+              <XAxis dataKey="name" tick={renderCustomTick} />
               <YAxis />
               <Tooltip />
               <Bar dataKey="completed" fill="#FEA400" radius={[5, 5, 0, 0]} />

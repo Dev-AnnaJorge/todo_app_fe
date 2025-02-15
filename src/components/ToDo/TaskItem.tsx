@@ -9,7 +9,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 import EditableTask from "../Modals/EditableDescription";
 import Select from "react-select";
-import RadioButton from "../Buttons/RadioButton";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
@@ -32,6 +31,7 @@ const TaskItem: React.FC<TaskScheduledProps> = observer(
     );
     const [isStarred, setIsStarred] = useState(task.important);
     const [effortBurn, setEffortBurn] = useState(task?.effortBurn);
+    const [taskState, setTaskState] = useState<TaskProps>(task);
 
     useEffect(() => {
       setSelectedStatus(task.status);
@@ -43,26 +43,47 @@ const TaskItem: React.FC<TaskScheduledProps> = observer(
       try {
         const newImportantValue = !isStarred;
         setIsStarred(newImportantValue);
+
+        if (newImportantValue) {
+          localStorage.setItem(`task-${task.id}-starred`, "true");
+        } else {
+          localStorage.removeItem(`task-${task.id}-starred`);
+        }
         await axios.put(
           `${process.env.API_URL}/api/todos/${task.id}/importance=${newImportantValue}`
         );
+
         fetchStore.updateTaskImportance(task.id, newImportantValue);
-        toast.success(newImportantValue ? "Marked as important" : "Unmarked as important");
-        fetchStore.fetchTodos();
+        toast.success(
+          newImportantValue ? "Marked as important" : "Unmarked as important"
+        );
       } catch (error) {
         console.error("Error updating importance:", error);
         toast.error("Failed to update importance.");
-        setIsStarred((prev: any) => !prev); // Revert local state on error
+        setIsStarred((prev: any) => !prev);
       }
     };
-    
-    
-    
+
+    useEffect(() => {
+      const starred =
+        localStorage.getItem(`task-${task.id}-starred`) === "true";
+      setIsStarred(starred);
+    }, [task.id]);
 
     const handleOpenModal = () => setIsModalOpen(true);
+    
     const handleCloseModal = () => {
       onCategoryModal(task.id, task.category);
       setIsModalOpen(false);
+
+    };
+
+    const handleCategoryChange = async (newCategory: string) => {
+      const updatedTask = {
+        ...taskState,
+        category: newCategory,
+      };
+      setTaskState(updatedTask); // Update local state
     };
 
     const handleSelect = async (selectedOption: any) => {
@@ -132,18 +153,30 @@ const TaskItem: React.FC<TaskScheduledProps> = observer(
       onSelect?.(task.id, completedStatus);
     };
 
-    const handleSaveDescription = async (newDescription: string) => {
+    const handleSaveDescription = async (
+      newDescription: string,
+      newCategory: string
+    ) => {
+      handleCategoryChange(newCategory);
       setDescription(newDescription);
       try {
         await axios.put(`${process.env.API_URL}/api/todos/update`, {
           id: task.id,
           title: task.title,
-          category: task.category,
+          category: newCategory, // Use the updated category
           description: newDescription,
         });
         toast.success("Task updated successfully!");
-        setIsModalOpen(false);
-        fetchStore.editTask({ ...task, description: newDescription }); // Update the MobX store
+        fetchStore.editTask({
+          ...task,
+          description: newDescription,
+          category: newCategory, // Use the updated category
+        });
+        setTaskState((prev) => ({
+          ...prev,
+          description: newDescription,
+          category: newCategory,
+        }));
       } catch (error) {
         toast.error("Failed to update task.");
         console.error("Error updating task:", error);
@@ -268,7 +301,6 @@ const TaskItem: React.FC<TaskScheduledProps> = observer(
                 <h3 className="text-gray-600 text-[12px] text-center m-1 font-semibold">
                   Date: {formatDate(task.createdAt)}
                 </h3>
-                <RadioButton task={task} />
                 <EditableTask task={task} onSave={handleSaveDescription} />
               </div>
             </div>

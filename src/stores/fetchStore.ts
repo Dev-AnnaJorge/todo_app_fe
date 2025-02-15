@@ -9,7 +9,8 @@ import {
   GetTodosWeeklyTasksService,
   GetAllNotes,
   GetAllNotesByDate,
-  GetTodoByDateService
+  GetTodoByDateService,
+  UpdateNote
 } from "@/services";
 import { makeAutoObservable } from "mobx";
 
@@ -121,25 +122,36 @@ class TodoStore {
   async fetchWeeklyTasks(category: string) {
     await GetTodosWeeklyTasksService(TodoRoutes.weeklyTasks, {
       category: category,
-    }).then((res) => (this.weeklyTasks = res?.data));
-  }
+    }).then((res) => {
+      this.weeklyTasks = res?.data;
+      console.log("Weekly Tasks Data:", this.weeklyTasks); // Check data for Sunday
+    });
+  }  
 
   async fetchNotes(createdAt: string, content: string) {
     await GetAllNotes(TodoRoutes.notes, {
-      createdAt:createdAt,
-      content: content,
-    }).then((res) => (this.notes = res?.data));
+      createdAt,
+      content,
+    }).then((res) => {
+      this.notes = res?.data;
+    });
   }
-
+  
   async fetchNotesByDate(date: string) {
-    await GetAllNotesByDate(TodoRoutes.notesbydate, {
-      date: date,
-    }).then((res) => (this.notesbydate = res?.data));
+    await GetAllNotesByDate(TodoRoutes.notesbydate, { date }).then((res) => {
+      this.notesbydate = res || {};
+      console.log("Notes by date:", this.notesbydate);
+    });
   }
+  
+  async updateNoteByDate(date: string, content: string) {
+    await UpdateNote(TodoRoutes.notes, { date, content }).then((res) => {
+      if (res?.data) {
+        this.notesbydate = res?.data;
+      }
+    });
+  }  
 }
-
-
-
 
 const fetchStore = new TodoStore();
 export default fetchStore;
