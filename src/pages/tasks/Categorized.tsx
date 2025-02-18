@@ -32,15 +32,18 @@ const Categorized: React.FC<CategorizedProps> = observer(({ selectedDate }) => {
   
   useEffect(() => {
     requestUpdate();
-  }, [selectedDate, scheduled]); // Ensure selectedDate is a dependency
+  }, [selectedDate, scheduled]);
 
   return (
     <div className="mx-4 sm:mx-10">
       {/* Radio Button Toggle */}
-      <div
-        className="flex items-center space-x-2 cursor-pointer"
-        onClick={() => setScheduled((prev)=>!prev)}
-      >
+      <label className="flex items-center space-x-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={scheduled}
+          onChange={() => setScheduled((prev) => !prev)}
+          className="hidden"
+        />
         <div
           className={`w-5 h-5 border-2 rounded-full flex items-center justify-center ${
             scheduled ? "bg-[#FEA400] border-gray-700" : "border-gray-700"
@@ -51,7 +54,7 @@ const Categorized: React.FC<CategorizedProps> = observer(({ selectedDate }) => {
         <span className="text-gray-700 select-none">
           {scheduled ? "Scheduled" : "Unscheduled"}
         </span>
-      </div>
+      </label>
 
       {/* Summary */}
       <Summary

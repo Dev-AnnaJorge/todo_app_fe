@@ -19,12 +19,17 @@ const Summary: React.FC<EditableNoteProps> = observer(
   ({ notes, onSave, selectedDate }) => {
     const summary = fetchStore.summaryTasks;
     const [isEditing, setIsEditing] = useState(false);
+    const [isDisable, setIsDisabled] = useState(false);
     const [content, setContent] = useState<string>("");
 
     useEffect(() => {
       const fetchData = async () => {
         try {
           const formattedDate = format(selectedDate, "yyyy-MM-dd");
+          const currentDate = format(new Date(),"yyyy-MM-dd");
+          
+          setIsDisabled(formattedDate.toString() == currentDate.toString() ? false : true);        
+         
           await fetchStore.fetchNotesByDate(formattedDate);
           console.log(
             "Fetched notes content:",
@@ -39,7 +44,7 @@ const Summary: React.FC<EditableNoteProps> = observer(
       fetchData();
     }, [selectedDate]);
 
-    const handleEditClick = () => setIsEditing(true);
+    const handleEditClick = () => setIsEditing(true);    
 
     const handleSaveClick = async () => {
       if (content.length === 0) {
@@ -127,7 +132,8 @@ const Summary: React.FC<EditableNoteProps> = observer(
               ) : (
                 <button
                   onClick={handleEditClick}
-                  className="text-[#171717] px-2 py-2 rounded-full flex items-center hover:bg-gray-300 transition"
+                  disabled={isDisable}
+                  className={`${isDisable ? "text-gray-500":"text-[#171717] "} px-2 py-2 rounded-full flex items-center ${isDisable? "" : "hover:bg-gray-300"}  transition`}
                 >
                   <FontAwesomeIcon icon={faPenToSquare} className="h-5 w-5" />
                 </button>

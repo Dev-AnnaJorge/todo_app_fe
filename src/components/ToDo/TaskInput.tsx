@@ -43,6 +43,13 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
       toast.error("Please fill in all fields");
       return;
     }
+
+    const today = format(new Date(), "yyyy-MM-dd");
+    if (selectedCategory === "scheduled" && selectedDate === today) {
+      toast.error("Cannot add a task for today");
+      return;
+    }
+
     try {
       const payload = {
         title,
@@ -60,11 +67,10 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
       const { task } = response.data;
 
       if (task) {
-        fetchStore.addTask(task); // Add task to MobX store
-        onAddTask(task); // Callback to the parent if necessary
+        fetchStore.addTask(task);
+        onAddTask(task);
       }
 
-      // Reset form fields
       setTitle("");
       setDescription("");
       setPriority("high");
@@ -84,7 +90,11 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
     low: "text-blue-500",
   }[priority];
 
-  const todayDate = format(new Date(), "yyyy-MM-dd");
+  const today = new Date();
+  const todayDate = format(today, "yyyy-MM-dd");
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+  const tomorrowDate = tomorrow.toISOString().split("T")[0];
 
   return (
     <div className="bg-[#F5E8E8] p-4 rounded-md flex items-center justify-between w-10/12">
@@ -133,7 +143,7 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
           value={selectedDate}
           onChange={handleDateChange}
           className="rounded-md p-1 bg-transparent border border-gray-300"
-          min={selectedCategory === "scheduled" ? todayDate : todayDate} // Scheduled: allow today & future, Unscheduled: only today
+          min={selectedCategory === "scheduled" ? tomorrowDate : todayDate} // Scheduled: allow today & future, Unscheduled: only today
           max={selectedCategory === "unscheduled" ? todayDate : undefined} // Unscheduled: restrict to today
           disabled={selectedCategory === "unscheduled"} // Disable manual selection for unscheduled
         />
