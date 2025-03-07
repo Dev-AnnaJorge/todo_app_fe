@@ -43,7 +43,7 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
 
     try {
       const payload = {
-        userId, // ✅ include userId here
+        userId,
         title,
         description,
         priority,
@@ -133,6 +133,7 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
           onClick={handleAddTask}
         >
           <FontAwesomeIcon icon={faPlus} className="w-5 mx-auto" />
+          <span>Add Task</span>
         </button>
       </div>
     </div>

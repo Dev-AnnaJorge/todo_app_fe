@@ -218,9 +218,9 @@ const TaskTrackerSignup = observer(() => {
             <button type="submit" className={buttonClasses}>
               {fetchStore.loading ? "Signing Up..." : "Sign Up"}
             </button>
-            {fetchStore.error && (
+            {/* {fetchStore.error && (
               <p className="text-red-500 text-sm">{fetchStore.error}</p>
-            )}
+            )} */}
           </form>
 
           <p className="mt-4 text-sm text-center">

@@ -68,7 +68,7 @@ const CompletedSchedule: React.FC<CompletedSchedule> = ({ task }) => {
   return (
     <div className="flex flex-col w-full">
       <div className="flex w-full items-center justify-between">
-        <div className="flex w-full items-center bg-[#F5E8E8] hover:bg-white p-4 rounded-lg mt-2">
+        <div className="flex w-full items-center bg-[#F5E8E8] hover:bg-white p-4 rounded-lg">
           <div className="flex w-full items-center justify-between">
             <div className="flex flex-col w-2/3">
               <h3 className="text-sm sm:text-sm md:text-lg text-[#4D4C4C] cursor-pointer">

@@ -205,9 +205,9 @@ const AddUser: React.FC<AddUserProps> = observer(({ closeModal, onSuccess }) => 
           </div>
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          {fetchStore.error && (
+          {/* {fetchStore.error && (
             <p className="text-red-500 text-sm">{fetchStore.error}</p>
-          )}
+          )} */}
 
           <button
             type="submit"

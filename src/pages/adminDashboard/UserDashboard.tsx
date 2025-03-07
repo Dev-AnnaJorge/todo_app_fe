@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Image from "next/image";
@@ -10,6 +10,7 @@ import {
   Trash2,
   LogOut,
   UserCircle,
+  Menu,
 } from "lucide-react";
 import { User } from "@/interfaces/Users";
 import AddUser from "@/components/Modals/AddUSer";
@@ -35,6 +36,21 @@ const UserDashboard: React.FC = () => {
   const [showAdminInfoModal, setShowAdminInfoModal] = useState(false);
   const [adminInfo, setAdminInfo] = useState<User | null>(null);
   const [clientInfo, setClientInfo] = useState<User | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Close menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const fetchUsers = async () => {
     try {
@@ -125,150 +141,187 @@ const UserDashboard: React.FC = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-2 md:p-6">
       <nav className="w-full flex justify-between items-center pb-3">
         {/* Logo */}
         <div className="flex items-center gap-2">
           <Image
             src="/Images/taskTracker2.0.png"
             alt="Task Tracker Logo"
-            width={150}
-            height={150}
+            width={120}
+            height={120}
+            className="md:w-[130px] md:h-[90px]"
           />
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl font-semibold text-[#444444]">
+        <h1 className="text-lg md:text-2xl font-semibold text-[#444444] text-center md:text-left">
           User Management Dashboard
         </h1>
 
         {/* Buttons */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowAdminInfoModal(true)}
-            className="flex items-center bg-transparent text-gray-700 px-1 py-1 rounded"
-          >
-            <UserCircle size={24} />
-          </button>
-          <button
-            onClick={handleLogout}
-            className="flex items-center bg-transparent text-gray-700 px-1 py-1 rounded"
-          >
-            <LogOut size={18} />
-          </button>
+        <div className="relative flex items-center gap-2">
+          {/* Desktop buttons */}
+          <div className="hidden md:flex items-center gap-2">
+            <button
+              onClick={() => setShowAdminInfoModal(true)}
+              className="flex items-center bg-transparent text-gray-700 px-1 py-1 rounded"
+            >
+              <UserCircle size={24} />
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center bg-transparent text-gray-700 px-1 py-1 rounded"
+            >
+              <LogOut size={18} />
+            </button>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden relative" ref={menuRef}>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex items-center bg-transparent text-gray-700 px-1 py-1 rounded"
+            >
+              <Menu size={24} />
+            </button>
+
+            {menuOpen && (
+              <div className="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-40 z-[99999]">
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false); // Close menu first
+                      setShowAdminInfoModal(true); // Open modal slightly after
+                    }}
+                    className="flex gap-6 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Admin Info
+                    <UserCircle size={24} />
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="flex gap-14 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Logout
+                    <LogOut size={18} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 
-      <div className="flex gap-4 mb-4">
-        <input
-          type="text"
-          placeholder="Search by name or username"
-          className="border p-1 w-[300px] rounded"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <select
-          className="border p-2 rounded"
-          value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
-        >
-          <option value="">All Roles</option>
-          <option value="admin">Admin</option>
-          <option value="client">Client</option>
-        </select>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <input
+            type="text"
+            placeholder="Search by name or username"
+            className="border p-1 w-full md:w-[300px] rounded"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select
+            className="border p-2 rounded w-full md:w-auto"
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+          >
+            <option value="">All Roles</option>
+            <option value="admin">Admin</option>
+            <option value="client">Client</option>
+          </select>
+        </div>
+
         <button
           onClick={() => setShowRegisterModal(true)}
-          className="ml-auto flex items-center gap-2 bg-[#F5DFB5] text-gray-600 px-4 py-2 rounded"
+          className="flex items-center gap-2 justify-center bg-[#F5DFB5] text-gray-600 px-4 py-2 rounded"
         >
           <Plus size={16} /> Add User
         </button>
-        {/* Modal with AddUser */}
-        {showRegisterModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <AddUser
-              closeModal={() => setShowRegisterModal(false)}
-              onSuccess={fetchUsers}
-            />
-          </div>
-        )}
       </div>
 
-      {/* User Table */}
-      {loading ? (
-        <p>Loading users...</p>
-      ) : (
-        <>
-          <table className="min-w-full bg-white border rounded-lg text-[#444444]">
-            <thead>
-              <tr className="bg-[#F5E8E8] text-left">
-                <th className="p-3">Name</th>
-                <th className="p-3">Username</th>
-                <th className="p-3">Role</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedUsers.map((user) => (
-                <tr key={user.userId} className="border-t">
-                  <td className="p-3">
-                    {user.firstName} {user.middleName} {user.lastName}
-                  </td>
-                  <td className="p-3">{user.username}</td>
-                  <td className="p-3 capitalize">{user.userRole}</td>
-                  <td className="p-3">
-                    <button
-                      onClick={() => toggleStatus(user.userId, user.isActive)}
-                      className={`flex items-center ${
-                        user.userRole === "admin" ? "cursor-not-allowed " : ""
-                      }`}
-                      disabled={user.userRole === "admin"}
-                    >
-                      {user.isActive ? (
-                        <ToggleRight className="w-5 h-5 text-green-500" />
-                      ) : (
-                        <ToggleLeft className="w-5 h-5 text-red-500" />
-                      )}
-                    </button>
-                  </td>
-                  <td className="p-3 flex gap-2">
-                    {user.userRole !== "admin" && (
-                      <button
-                        onClick={() => openEditModal(user)}
-                        className="p-1 rounded"
-                      >
-                        <Pencil className="w-4 h-4 text-blue-600" />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {filteredUsers.length === 0 && (
-            <p className="text-center p-4">No users found.</p>
-          )}
-
-          {/* Pagination */}
-          <div className="flex justify-center mt-4 gap-2">
-            {Array.from({
-              length: Math.ceil(filteredUsers.length / PAGE_SIZE),
-            }).map((_, idx) => (
-              <button
-                key={idx}
-                className={`px-3 py-1 rounded ${
-                  currentPage === idx + 1
-                    ? "bg-[#F5DFB5] text-[#444444]"
-                    : "bg-gray-200"
-                }`}
-                onClick={() => setCurrentPage(idx + 1)}
-              >
-                {idx + 1}
-              </button>
-            ))}
-          </div>
-        </>
+      {showRegisterModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <AddUser
+            closeModal={() => setShowRegisterModal(false)}
+            onSuccess={fetchUsers}
+          />
+        </div>
       )}
+      {/* User Table with Horizontal Scroll */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border rounded-lg text-[#444444] text-sm sm:text-sm md:text-base">
+          <thead>
+            <tr className="bg-[#F5E8E8] text-left">
+              <th className="p-3">Name</th>
+              <th className="p-3">Username</th>
+              <th className="p-3">Role</th>
+              <th className="p-3">Status</th>
+              <th className="p-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedUsers.map((user) => (
+              <tr key={user.userId} className="border-t">
+                <td className="p-3">
+                  {user.firstName} {user.middleName} {user.lastName}
+                </td>
+                <td className="p-3">{user.username}</td>
+                <td className="p-3 capitalize">{user.userRole}</td>
+                <td className="p-3">
+                  <button
+                    onClick={() => toggleStatus(user.userId, user.isActive)}
+                    className={`flex items-center ${
+                      user.userRole === "admin" ? "cursor-not-allowed" : ""
+                    }`}
+                    disabled={user.userRole === "admin"}
+                  >
+                    {user.isActive ? (
+                      <ToggleRight className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <ToggleLeft className="w-5 h-5 text-red-500" />
+                    )}
+                  </button>
+                </td>
+                <td className="p-3 flex gap-2">
+                  {user.userRole !== "admin" && (
+                    <button
+                      onClick={() => openEditModal(user)}
+                      className="p-1 rounded"
+                    >
+                      <Pencil className="w-4 h-4 text-blue-600" />
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {filteredUsers.length === 0 && (
+        <p className="text-center p-4">No users found.</p>
+      )}
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-4 gap-2">
+        {Array.from({
+          length: Math.ceil(filteredUsers.length / PAGE_SIZE),
+        }).map((_, idx) => (
+          <button
+            key={idx}
+            className={`px-3 py-1 rounded ${
+              currentPage === idx + 1
+                ? "bg-[#F5DFB5] text-[#444444]"
+                : "bg-gray-200"
+            }`}
+            onClick={() => setCurrentPage(idx + 1)}
+          >
+            {idx + 1}
+          </button>
+        ))}
+      </div>
       {showAdminInfoModal && adminInfo && (
         <EditAdminInfoModal
           adminInfo={adminInfo}

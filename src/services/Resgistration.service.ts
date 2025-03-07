@@ -1,15 +1,17 @@
 import { TodoApi } from "@/api/todoAppApi";
-import { AxiosPromise } from "axios";
+import { AxiosError, AxiosPromise } from "axios";
 
-const RegisterService = async (route: string, data: any): Promise<AxiosPromise | any> => {
-    try {
-      const res = await TodoApi.post(route, data);
-      return res;
-    } catch (err) {
-      console.error("Error during registration:", err);
-      throw err;
-    }
-  };
-  
+const RegisterService = async (
+  route: string,
+  data: any
+): Promise<AxiosPromise | any> => {
+  try {
+    const res = await TodoApi.post(route, data);
+    return res;
+  } catch (err) {
+    const error = err as AxiosError;
+    console.error("Login failed:", error.response?.data || error.message);
+  }
+};
 
 export { RegisterService };

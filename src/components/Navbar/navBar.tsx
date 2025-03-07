@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TaskInput from "../ToDo/TaskInput";
 import Image from "next/image";
 import { Menu, MenuIcon, UserCircle, X } from "lucide-react";
@@ -16,6 +16,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSelectMenu, activeMenu }) => {
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const router = useRouter();
   const [navOpen, setNavOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -24,6 +25,27 @@ const NavBar: React.FC<NavBarProps> = ({ onSelectMenu, activeMenu }) => {
   };
 
   const userName = fetchStore.user?.nickname || fetchStore.user?.firstName;
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setMenuOpen(false);
+      }
+    };
+
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuOpen]);
 
   return (
     <>
@@ -65,7 +87,10 @@ const NavBar: React.FC<NavBarProps> = ({ onSelectMenu, activeMenu }) => {
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-40 z-[99999]">
+              <div
+                ref={dropdownRef}
+                className="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-40 z-[99999]"
+              >
                 <div className="py-1">
                   <a
                     href="#"
