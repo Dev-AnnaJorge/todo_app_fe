@@ -1,0 +1,151 @@
+import React, { useState } from "react";
+import TaskInput from "../ToDo/TaskInput";
+import Image from "next/image";
+import { Menu, MenuIcon, UserCircle, X } from "lucide-react";
+import { useRouter } from "next/router";
+import fetchStore from "@/stores/fetchStore";
+import { observer } from "mobx-react-lite";
+
+interface NavBarProps {
+  onSelectMenu: (menu: string) => void;
+  activeMenu: string;
+}
+
+const NavBar: React.FC<NavBarProps> = ({ onSelectMenu, activeMenu }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+  const router = useRouter();
+  const [navOpen, setNavOpen] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    fetchStore.logout();
+    router.push("/tasks");
+  };
+
+  const userName = fetchStore.user?.nickname || fetchStore.user?.firstName;
+
+  return (
+    <>
+      <header className="sticky top-0 z-50 flex flex-col sm:flex-row justify-between items-center bg-[#F5E8E8] p-4 sm:p-0 shadow-md ">
+        {/* Left Section */}
+        <div className="flex justify-between items-center w-full sm:w-auto px-2 sm:px-10">
+          <div className="flex items-center gap-2">
+            <Image
+              src="/Images/taskTracker2.0.png"
+              alt="Task Tracker Logo"
+              width={70}
+              height={70}
+              className="sm:w-[140px] sm:h-[140px] md:w-[120px] md:h-[85px]"
+            />
+            <span className="text-gray-700 text-[14px] sm:text-[16px]">
+              Hi! {userName}
+            </span>
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <button className="sm:hidden" onClick={() => setNavOpen(!navOpen)}>
+            {navOpen ? <X size={24} /> : <Menu size={20} />}
+          </button>
+        </div>
+
+        <div className="hidden sm:flex flex-grow justify-center">
+          <TaskInput onAddTask={() => {}} />
+        </div>
+
+        {/* Right Menu */}
+        <div className="hidden sm:flex items-center gap-8 mr-10">
+          <div className="relative inline-block text-left">
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex items-center gap-2 border p-4"
+            >
+              <Menu size={20} className="text-gray-600 hover:bg-gray-200" />
+              <UserCircle size={24} className="text-gray-600" />
+            </button>
+
+            {menuOpen && (
+              <div className="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-40 z-[99999]">
+                <div className="py-1">
+                  <a
+                    href="#"
+                    onClick={() => {
+                      onSelectMenu("dailyList");
+                      setMenuOpen(false);
+                    }}
+                    className={`block px-4 py-2 text-sm ${
+                      activeMenu === "dailyList"
+                        ? "bg-[#F5DFB5]"
+                        : "text-gray-700"
+                    } hover:bg-yellow-100`}
+                  >
+                    Daily Lists
+                  </a>
+                  <a
+                    href="#"
+                    onClick={() => {
+                      onSelectMenu("tasksOverview");
+                      setMenuOpen(false);
+                    }}
+                    className={`block px-4 py-2 text-sm ${
+                      activeMenu === "tasksOverview"
+                        ? "bg-[#F5DFB5]"
+                        : "text-gray-700"
+                    } hover:bg-yellow-100`}
+                  >
+                    Tasks Overview
+                  </a>
+                  <a
+                    href="#"
+                    onClick={handleLogout}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Logout
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Dropdown Menu */}
+      {navOpen && (
+        <div className="sticky top-16 z-50 flex flex-col gap-4 bg-white p-4 shadow-md">
+          <TaskInput onAddTask={() => {}} />
+          <nav className="flex flex-col gap-2">
+            <a
+              href="#"
+              onClick={() => {
+                onSelectMenu("dailyList");
+                setNavOpen(false);
+              }}
+              className="text-gray-700 text-sm py-2 px-4 rounded hover:bg-gray-100"
+            >
+              Daily Lists
+            </a>
+            <a
+              href="#"
+              onClick={() => {
+                onSelectMenu("tasksOverview");
+                setNavOpen(false);
+              }}
+              className="text-gray-700 text-sm py-2 px-4 rounded hover:bg-gray-100"
+            >
+              Tasks Overview
+            </a>
+            <a
+              href="#"
+              onClick={handleLogout}
+              className="text-gray-700 text-sm py-2 px-4 rounded hover:bg-gray-100"
+            >
+              Logout
+            </a>
+          </nav>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default observer(NavBar);

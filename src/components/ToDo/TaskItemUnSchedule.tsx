@@ -9,21 +9,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 import EditableTask from "../Modals/EditableDescription";
 import Select from "react-select";
-import RadioButton from "../Buttons/RadioButton";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import { observer } from "mobx-react-lite";
 import fetchStore from "@/stores/fetchStore";
 
-interface TaskUnScheduledProps {
+interface TaskItemUnScheduleProps {
   task: TaskProps;
   onApprove?: (id: number) => void;
   onSelect?: (id: number, status: string) => any;
   onCategoryModal: (id: number, category: string) => any;
 }
 
-const TaskUnScheduled: React.FC<TaskUnScheduledProps> = observer(
+const TaskItemUnSchedule: React.FC<TaskItemUnScheduleProps> = observer(
   ({ task, onApprove, onSelect, onCategoryModal }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [description, setDescription] = useState(task?.description);
@@ -33,6 +32,14 @@ const TaskUnScheduled: React.FC<TaskUnScheduledProps> = observer(
     const [isStarred, setIsStarred] = useState(task.important);
     const [effortBurn, setEffortBurn] = useState(task?.effortBurn);
     const [taskState, setTaskState] = useState<TaskProps>(task);
+
+    useEffect(() => {
+      if (isModalOpen) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "auto";
+      }
+    }, [isModalOpen]);
 
     useEffect(() => {
       setSelectedStatus(task.status);
@@ -72,10 +79,10 @@ const TaskUnScheduled: React.FC<TaskUnScheduledProps> = observer(
     }, [task.id]);
 
     const handleOpenModal = () => setIsModalOpen(true);
+
     const handleCloseModal = () => {
       onCategoryModal(task.id, task.category);
       setIsModalOpen(false);
-      
     };
 
     const handleCategoryChange = async (newCategory: string) => {
@@ -96,7 +103,9 @@ const TaskUnScheduled: React.FC<TaskUnScheduledProps> = observer(
         toast.success("Task status updated successfully!");
         const date = new Date().toISOString().split("T")[0];
         const category = task.category;
-        await fetchStore.fetchSummary(date, category);
+        if (fetchStore.user) {
+          await fetchStore.fetchSummary(fetchStore.user.userId);
+        }
       } catch (error) {
         toast.error("Failed to update status.");
         console.error("Error updating status:", error);
@@ -143,8 +152,12 @@ const TaskUnScheduled: React.FC<TaskUnScheduledProps> = observer(
         fetchStore.approveTask(task.id, completedDate);
         const date = new Date().toISOString().split("T")[0];
         const category = task.category;
-        await fetchStore.fetchCompleted(date, category);
-        await fetchStore.fetchSummary(date, category);
+        if (fetchStore.user) {
+          await fetchStore.fetchCompletedToday(fetchStore.user.userId);
+        }
+        if (fetchStore.user) {
+          await fetchStore.fetchSummary(fetchStore.user.userId);
+        }
         fetchStore.fetchWeeklyTasks(category);
       } catch (error) {
         toast.error("Failed to update task status.");
@@ -200,94 +213,111 @@ const TaskUnScheduled: React.FC<TaskUnScheduledProps> = observer(
     return (
       <div className="flex flex-col w-full border-2 p-2 rounded-lg mt-2">
         {/* Task Header */}
-        <div className="flex w-full items-center justify-between">
-          <div className="flex w-full items-center justify-between bg-[#F5E8E8] p-4 rounded-full shadow">
-            <FontAwesomeIcon
-              icon={faStar}
-              className={`cursor-pointer transition-colors text-xl ${
-                isStarred ? "text-yellow-500" : "text-gray-400"
-              }`}
-              onClick={toggleStar}
-            />
-            <div className="flex flex-col w-2/3">
-              <h3
-                className="text-lg font-semibold cursor-pointer"
-                onClick={handleOpenModal}
-              >
-                {task.title}
-              </h3>
-            </div>
-            <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap md:flex-nowrap w-full items-center justify-between gap-2">
+          {/* Star Icon */}
+          <FontAwesomeIcon
+            icon={faStar}
+            className={`cursor-pointer transition-colors text-xl h-4.5 w-4.5 sm:h-4.5 sm:w-4.5 md:w-5 ${
+              isStarred ? "text-yellow-500" : "text-gray-400"
+            }`}
+            onClick={toggleStar}
+          />
+
+          {/* Task Title & Info */}
+          <div className="flex flex-col sm:flex-row w-full items-center justify-between bg-[#F5E8E8] p-4 rounded-lg shadow gap-2">
+            <h3
+              className="text-sm sm:text-sm md:text-lg font-normal text-[#4D4C4C] cursor-pointer w-full sm:w-2/3 text-center sm:text-left"
+              onClick={handleOpenModal}
+            >
+              {task.title}
+            </h3>
+            <div className="flex items-center justify-center sm:justify-end space-x-2 w-full sm:w-auto">
+              {/* Category */}
+              <span className="text-[12px] sm:text-sm md:text-[12px] text-gray-600">
+                {task.category.toUpperCase()}
+              </span>
+
+              {/* Priority */}
               <span
-                className={`text-[12px] ${getPriorityColor(task.priority)}`}
+                className={`text-[12px] sm:text-sm md:text-[12px] ${getPriorityColor(
+                  task.priority
+                )}`}
               >
                 {task.priority.toUpperCase()}
               </span>
             </div>
           </div>
-          {/* Action Buttons */}
-          <div className="flex m-2 gap-2">
-            {selectedStatus === "completed" ? (
-              <CompletedIcon />
-            ) : (
-              <>
-                <button
-                  className="text-[#990000] px-1 py-2 rounded flex items-center justify-center"
-                  onClick={() => task.id !== undefined && handleDelete(task.id)}
-                >
-                  <FontAwesomeIcon icon={faTrashCan} className="h-5 w-5" />
-                </button>
-                {onApprove && (
+
+          {/* Status Selector */}
+          <div className="flex flex-row items-center justify-end gap-2 w-full sm:w-auto md:w-1/4">
+            {/* Status Selector */}
+            <div className="w-1/2 sm:w-auto flex justify-end">
+              {selectedStatus !== "completed" && (
+                <Select
+                  id="status"
+                  options={taskStatusOptions}
+                  onChange={handleSelect}
+                  value={taskStatusOptions.find(
+                    (option) => option.value === selectedStatus
+                  )}
+                  isSearchable={false}
+                  className="text-[12px] outline-none w-full sm:w-40"
+                  menuPortalTarget={document.body}
+                  styles={{
+                    control: (base) => ({
+                      ...base,
+                      backgroundColor: "transparent",
+                      minHeight: "30px",
+                      padding: "0px",
+                      boxShadow: "none",
+                      border: "none",
+                    }),
+                    menuPortal: (base) => ({ ...base, zIndex: 9998 }),
+                    menu: (base) => ({ ...base, backgroundColor: "white" }),
+                  }}
+                />
+              )}
+            </div>
+            {/* Action Buttons */}
+            <div className="flex gap-2 w-1/2 sm:w-auto justify-end mt-2 sm:mt-0">
+              {selectedStatus === "completed" ? (
+                <CompletedIcon />
+              ) : (
+                <>
                   <button
-                    className={`text-[#38761d] px-1 py-2 rounded flex items-center justify-center ${
-                      selectedStatus === "todo"
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
-                    onClick={handleApprove}
-                    disabled={selectedStatus === "todo"}
+                    className="text-[#990000] px-1 py-2 rounded flex items-center justify-center "
+                    onClick={() =>
+                      task.id !== undefined && handleDelete(task.id)
+                    }
                   >
-                    <FontAwesomeIcon icon={faCheckCircle} className="h-5 w-5" />
+                    <FontAwesomeIcon icon={faTrashCan} className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5"/>
                   </button>
-                )}
-              </>
-            )}
+                  {onApprove && (
+                    <button
+                      className={`text-[#38761d] px-1 py-2 rounded flex items-center justify-center ${
+                        selectedStatus === "todo"
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                      onClick={handleApprove}
+                      disabled={selectedStatus === "todo"}
+                    >
+                      <FontAwesomeIcon
+                        icon={faCheckCircle}
+                        className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5"
+                      />
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Status Dropdown */}
-        {selectedStatus !== "completed" && (
-          <div className="w-1/2">
-            <Select
-              id="status"
-              options={taskStatusOptions}
-              onChange={handleSelect}
-              value={taskStatusOptions.find(
-                (option) => option.value === selectedStatus
-              )}
-              isSearchable={false}
-              className="ml-4 text-[12px] outline-none mb-1 w-40"
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  backgroundColor: "transparent",
-                  minHeight: "30px",
-                  padding: "0px",
-                  boxShadow: "none",
-                  border: "none",
-                  color: selectedStatus === "in_progress" ? "blue" : "black",
-                  ":hover": { backgroundColor: "transparent" },
-                }),
-                menu: (base) => ({ ...base, backgroundColor: "white" }),
-              }}
-            />
-          </div>
-        )}
-
         {/* Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center h-full">
-            <div className="bg-[#EBEBEB] p-6 rounded-lg shadow-lg w-96 relative flex flex-col">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center h-full z-[9999]">
+            <div className="bg-[#EBEBEB] p-6 rounded-lg shadow-lg w-[90%] sm:w-96 relative flex flex-col">
               <button
                 onClick={handleCloseModal}
                 className="absolute top-2 right-2 text-black rounded-full hover:bg-gray-300 transition"
@@ -301,7 +331,11 @@ const TaskUnScheduled: React.FC<TaskUnScheduledProps> = observer(
                 <h3 className="text-gray-600 text-[12px] text-center m-1 font-semibold">
                   Date: {formatDate(task.createdAt)}
                 </h3>
-                <EditableTask task={task} onSave={handleSaveDescription} />
+                <EditableTask
+                  task={task}
+                  onSave={handleSaveDescription}
+                  onClose={() => setIsModalOpen(false)}
+                />
               </div>
             </div>
           </div>
@@ -324,4 +358,4 @@ const getPriorityColor = (priority: string) => {
   }
 };
 
-export default TaskUnScheduled;
+export default TaskItemUnSchedule;

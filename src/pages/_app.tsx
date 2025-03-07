@@ -4,6 +4,7 @@ import type { AppProps } from "next/app";
 import { Inter, Poppins } from "next/font/google";
 import { observer } from "mobx-react-lite";
 import fetchStore from "@/stores/fetchStore";
+import { useEffect } from "react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const poppins = Poppins({
@@ -13,6 +14,18 @@ const poppins = Poppins({
 });
 
 const App = observer(({ Component, pageProps }: AppProps) => {
+  useEffect(() => {
+    fetchStore.loadUser();
+  }, []);
+
+  useEffect(() => {
+    const innerWindowWidth = window.innerWidth;
+    const outerWindowWidth = window.outerWidth;
+
+    console.log({window});
+    
+  }, []);
+
   return (
     <div className={`${inter.variable} ${poppins.variable} font-poppins`}>
       <Component {...pageProps} store={fetchStore} />

@@ -2,14 +2,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faSave } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { TaskNoteProps, TaskProps } from "@/interfaces";
+import { TaskNoteProps } from "@/interfaces/Notes";
+import { TaskProps } from "@/interfaces";
 import { ResponsiveContainer } from "recharts";
 import fetchStore from "@/stores/fetchStore";
 import { format, set } from "date-fns";
 import toast from "react-hot-toast";
 
 interface EditableNoteProps {
-  task?: TaskProps;
+  tasksToday?: TaskProps;
   notes?: TaskNoteProps; // Make notes optional to avoid undefined issues
   onSave: (newContent: string) => void;
   selectedDate: Date;
@@ -25,32 +26,29 @@ const Summary: React.FC<EditableNoteProps> = observer(
     useEffect(() => {
       const fetchData = async () => {
         try {
-          const formattedDate = format(selectedDate, "yyyy-MM-dd");
-          const currentDate = format(new Date(),"yyyy-MM-dd");
-          
-          setIsDisabled(formattedDate.toString() == currentDate.toString() ? false : true);        
-         
-          await fetchStore.fetchNotesByDate(formattedDate);
-          console.log(
-            "Fetched notes content:",
-            fetchStore.notesbydate?.content
-          );
+          const today = format(new Date(), "yyyy-MM-dd");
+          setIsDisabled(false);
+          if (fetchStore.user) {
+            await fetchStore.fetchSummary(fetchStore.user.userId);
+          } else {
+            console.error("User is not available");
+          }
+          await fetchStore.fetchNotesByDate(today);
           setContent(fetchStore.notesbydate?.content || "");
         } catch (error) {
           console.error("Error fetching notes:", error);
-          setContent(""); 
+          setContent("");
         }
       };
       fetchData();
-    }, [selectedDate]);
+    }, []);
 
-    const handleEditClick = () => setIsEditing(true);    
-
+    const handleEditClick = () => setIsEditing(true);
     const handleSaveClick = async () => {
-      if (content.length === 0) {
-        toast.error("The field is empty");
-        return;
-      }
+      // if (content.length === 0) {
+      //   toast.error("The field is empty");
+      //   return;
+      // }
       try {
         const formattedDate = format(selectedDate, "yyyy-MM-dd");
         if (fetchStore.notesbydate?.content) {
@@ -75,53 +73,55 @@ const Summary: React.FC<EditableNoteProps> = observer(
 
     return (
       <ResponsiveContainer width="100%" height={160}>
-        <div className="w-full flex space-x-4 p-4">
+        <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-4 p-2 sm:p-4 mb-4">
           {/* To-Do Box */}
-          <div className="w-1/2 h-32 bg-[#F5DFB5] flex flex-col items-start justify-center rounded-lg shadow-lg relative p-4">
-            <span className="absolute top-2 text-outline text-lg">To-Do</span>
-            <div className="text-gray-600 mt-8 font-semibold text-[40px]">
-              {summary?.[0]?.todo ?? "Not Started"}
+          <div className="h-32 bg-[#F5DFB5] flex flex-col items-start justify-center rounded-lg shadow-lg relative p-3 sm:p-4">
+            <span className="absolute top-1 sm:top-2 text-outline text-sm sm:text-lg">
+              To-Do
+            </span>
+            <div className="text-gray-600 mt-6 sm:mt-8 font-semibold text-[30px] sm:text-[28px] md:text-[40px]">
+              {summary?.todo ?? "Not Started"}
             </div>
           </div>
 
           {/* In Progress Box */}
-          <div className="w-1/2 h-32 bg-[#F5DFB5] flex flex-col items-start justify-center rounded-lg shadow-lg relative p-4">
-            <span className="absolute top-2 text-outline text-lg">
+          <div className="h-32 bg-[#C1E1EC] flex flex-col items-start justify-center rounded-lg shadow-lg relative p-3 sm:p-4">
+            <span className="absolute top-1 sm:top-2 text-outline text-sm sm:text-lg">
               In Progress
             </span>
-            <div className="text-gray-600 mt-8 font-semibold text-[40px]">
-              {summary?.[0]?.inprogress ?? "Not Started"}
+            <div className="text-gray-600 mt-6 sm:mt-8 font-semibold text-[30px] sm:text-[28px] md:text-[40px]">
+              {summary?.inprogress ?? "Not Started"}
             </div>
           </div>
 
           {/* Completed Box */}
-          <div className="w-1/2 h-32 bg-[#F5DFB5] flex flex-col items-start justify-center rounded-lg shadow-lg relative p-4">
-            <span className="absolute top-2 text-outline text-lg">
+          <div className="h-32 bg-[#dcedc1] flex flex-col items-start justify-center rounded-lg shadow-lg relative p-3 sm:p-4">
+            <span className="absolute top-1 sm:top-2 text-outline text-sm sm:text-lg">
               Completed
             </span>
-            <div className="text-gray-600 mt-8 font-semibold text-[40px]">
-              {summary?.[0]?.completed ?? "Not Started"}
+            <div className="text-gray-600 mt-6 sm:mt-8 font-semibold text-[30px] sm:text-[28px] md:text-[40px]">
+              {summary?.completed ?? "Not Started"}
             </div>
           </div>
 
-          {/* What Went Wrong Box */}
-          <div className="w-1/2 h-32 bg-[#F5DFB5] flex flex-col items-start justify-center rounded-lg shadow-lg relative p-4">
-            <span className="absolute top-2 text-outline text-lg mb-4">
-              Note
+          {/* Daily Remarks Box */}
+          <div className="h-32 bg-[#ffd3b6] flex flex-col items-start justify-center rounded-lg shadow-lg relative p-3 sm:p-4">
+            <span className="absolute top-1 sm:top-2 text-outline text-sm sm:text-lg">
+              Daily Remarks
             </span>
             {isEditing ? (
               <textarea
                 value={content}
                 onChange={handleChange}
                 autoFocus
-                className="text-gray-700 bg-transparent w-full outline-none mt-6"
+                className="text-gray-700 bg-transparent w-full outline-none mt-4 sm:mt-6 text-sm sm:text-base"
               />
             ) : (
-              <p className="text-gray-700 mt-8">
-                {content || "Please Input Note."}
+              <p className="text-gray-700 mt-4 sm:mt-8 text-sm sm:text-base">
+                {content || "Please Input your remarks."}
               </p>
             )}
-            <div className="w-full flex justify-end mt-4">
+            <div className="w-full flex justify-end mt-2 sm:mt-4">
               {isEditing ? (
                 <button
                   onClick={handleSaveClick}
@@ -133,7 +133,11 @@ const Summary: React.FC<EditableNoteProps> = observer(
                 <button
                   onClick={handleEditClick}
                   disabled={isDisable}
-                  className={`${isDisable ? "text-gray-500":"text-[#171717] "} px-2 py-2 rounded-full flex items-center ${isDisable? "" : "hover:bg-gray-300"}  transition`}
+                  className={`${
+                    isDisable ? "text-gray-500" : "text-[#171717] "
+                  } px-2 py-2 rounded-full flex items-center ${
+                    isDisable ? "" : "hover:bg-gray-300"
+                  }  transition`}
                 >
                   <FontAwesomeIcon icon={faPenToSquare} className="h-5 w-5" />
                 </button>

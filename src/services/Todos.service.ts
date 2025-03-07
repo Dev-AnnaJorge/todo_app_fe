@@ -1,15 +1,38 @@
 import { TodoApi } from "@/api/todoAppApi";
+import { TaskProps } from "@/interfaces";
 import { AxiosPromise } from "axios";
 
-const GetTodosService = async (route: string): Promise<AxiosPromise | any>=>{
-    try{
-        const res = await TodoApi.get(route);
 
-        return res;
-    }catch(err){
-        throw err;
-    }
-}
+const GetTodosService = async (route: string, userId: number): Promise<TaskProps[]> => {
+  const res = await TodoApi.get(`${route}/${userId}`);
+  return res.data;
+};
+
+
+const GetTodosTodayService = async (
+  route: string,
+  userId: number
+): Promise<TaskProps[]> => {
+  try {
+    const res = await TodoApi.get(`${route}/${userId}`);
+    return res.data;
+  } catch (err) {
+    console.error("Error fetching today's tasks:", err);
+    return [];
+  }
+};
+
+const GetBacklogService = async (route: string, userId: number): Promise<AxiosPromise | any> => {
+  try {
+    const res = await TodoApi.get(`${route}/${userId}`);
+    return res;
+  } catch (err) {
+    const error = err as any;
+    console.error("GetBacklogService error:", error.response?.data || error.message);
+    throw err;
+  }
+};
+
 const GetTodoByDateService = async (route: string, data: any): Promise<AxiosPromise | any>=>{
     try{
         const res = await TodoApi.post(route, data)
@@ -20,20 +43,29 @@ const GetTodoByDateService = async (route: string, data: any): Promise<AxiosProm
     }
 }
 
-const GetTodosCompletedService = async (route: string, data: any): Promise<AxiosPromise | any>=>{
+const GetTodosCompletedService = async (route: string, userId: number): Promise<AxiosPromise | any>=>{
     try{
-        const res = await TodoApi.post(route, data)
+      const res = await TodoApi.get(`${route}/${userId}`);
 
         return res;
     }catch(err){
         throw err;
     }
 }
+const GetTodosCompletedTodayService = async (route: string, userId:number): Promise<AxiosPromise | any>=>{
+  try{
+      const res = await TodoApi.get(`${route}/${userId}`)
+
+      return res;
+  }catch(err){
+      throw err;
+  }
+}
 
 
-const GetTodosSummaryService = async (route: string, data: any): Promise<AxiosPromise | any>=>{
+const GetTodosSummaryService = async (route: string, userId:number): Promise<AxiosPromise | any>=>{
     try{
-        const res = await TodoApi.post(route, data)
+        const res = await TodoApi.get(`${route}/${userId}`)
         return res;
     }catch(err){
         throw err;
@@ -42,13 +74,13 @@ const GetTodosSummaryService = async (route: string, data: any): Promise<AxiosPr
 
 
 const GetTodosWeeklyTasksService = async (route: string, data: any): Promise<AxiosPromise | any>=>{
-    try{
-        const res = await TodoApi.post(route,data)
-        return res;
-      
-    }catch(err){
-        throw err;
-    }
+  try{
+      const res = await TodoApi.post(route,data)
+      return res;
+    
+  }catch(err){
+      throw err;
+  }
 }
 
 const GetAllNotes = async (route: string, data: any): Promise<AxiosPromise | any> => {
@@ -84,6 +116,15 @@ const GetAllNotes = async (route: string, data: any): Promise<AxiosPromise | any
     }
   };
 
+
+  const AddNoteByTask = async (route: string, data: any): Promise<AxiosPromise | any> => {
+    try {
+      const res = await TodoApi.post(route, data);
+      return res;
+    } catch (err) {
+      console.error("Error fetching notes:", err);
+    }
+  };
 export { 
     GetTodosService,
      GetTodosCompletedService, 
@@ -92,5 +133,9 @@ export {
      GetAllNotes,
      GetAllNotesByDate,
      GetTodoByDateService,
-     UpdateNote
+     UpdateNote,
+     GetTodosCompletedTodayService,
+     GetBacklogService,
+     GetTodosTodayService,
+     AddNoteByTask
     };

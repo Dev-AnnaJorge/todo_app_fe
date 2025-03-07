@@ -20,8 +20,7 @@ interface BarGraphProps {
 
 const BarGraph: React.FC<BarGraphProps> = observer(({ scheduled }) => {
   useEffect(() => {
-    const category = scheduled ? "scheduled" : "unscheduled";
-    fetchStore.fetchWeeklyTasks(category);
+    // fetchStore.fetchWeeklyTasks();
   }, [scheduled]);
 
   const daysOfWeek = [
@@ -123,11 +122,6 @@ const BarGraph: React.FC<BarGraphProps> = observer(({ scheduled }) => {
         ) : (
           <p className="text-center text-gray-500">Loading tasks...</p>
         )}
-      </div>
-
-      {/* Completed Tasks */}
-      <div className="w-1/2">
-        <CompletedTasks scheduled={scheduled} />
       </div>
     </div>
   );

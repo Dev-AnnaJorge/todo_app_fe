@@ -11,27 +11,14 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("high");
-  const [selectedCategory, setSelectedCategory] = useState("scheduled");
   const [selectedDate, setSelectedDate] = useState(
     format(new Date(), "yyyy-MM-dd")
-  ); // Default to today
+  );
 
   const handlePriorityChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setPriority(event.target.value);
-  };
-
-  const handleCategoryChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const category = event.target.value;
-    setSelectedCategory(category);
-
-    // If "unscheduled" is selected, force the date to be today
-    if (category === "unscheduled") {
-      setSelectedDate(format(new Date(), "yyyy-MM-dd"));
-    }
   };
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,18 +31,23 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
       return;
     }
 
-    const today = format(new Date(), "yyyy-MM-dd");
-    if (selectedCategory === "scheduled" && selectedDate === today) {
-      toast.error("Cannot add a task for today");
+    const userId = fetchStore.user?.userId;
+
+    if (!userId) {
+      toast.error("No user logged in");
       return;
     }
 
+    const today = format(new Date(), "yyyy-MM-dd");
+    const category = selectedDate === today ? "unscheduled" : "scheduled";
+
     try {
       const payload = {
+        userId, // ✅ include userId here
         title,
         description,
         priority,
-        category: selectedCategory.toLowerCase(),
+        category: category.toLowerCase(),
         createdAt: new Date(selectedDate),
       };
 
@@ -63,6 +55,7 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
         `${process.env.API_URL}/api/todos`,
         payload
       );
+
       toast.success("Task added successfully!");
       const { task } = response.data;
 
@@ -74,8 +67,8 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
       setTitle("");
       setDescription("");
       setPriority("high");
-      setSelectedCategory("scheduled");
       setSelectedDate(format(new Date(), "yyyy-MM-dd"));
+
       setTimeout(() => {
         window.location.reload();
       }, 2000);
@@ -94,17 +87,16 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
   const todayDate = format(today, "yyyy-MM-dd");
   const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);
-  const tomorrowDate = tomorrow.toISOString().split("T")[0];
 
   return (
-    <div className="bg-[#F5E8E8] p-4 rounded-md flex items-center justify-between w-10/12">
-      <div className="flex-1 font-bold flex flex-col">
+    <div className="bg-white p-2 rounded-md flex flex-col md:flex-row items-start md:items-center justify-between w-full md:w-1/2 gap-2 md:gap-4">
+      <div className="flex-1 font-bold flex flex-col w-full">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Task Title..."
-          className="bg-transparent border-none text-lg outline-none placeholder-gray-500"
+          className="bg-transparent border-none text-lg outline-none placeholder-gray-500 w-full sm:text-sm"
           maxLength={50}
         />
         <input
@@ -112,47 +104,35 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Description"
-          className="text-gray-600 text-[12px] bg-transparent border-none outline-none mt-2"
+          className="text-gray-600 text-[12px] bg-transparent border-none outline-none mt-2 w-full"
           maxLength={70}
         />
       </div>
 
-      <div className="flex items-center text-[12px] space-x-2">
+      <div className="flex flex-col md:flex-row items-start md:items-center text-[12px] gap-2 w-full md:w-auto">
         <select
           value={priority}
           onChange={handlePriorityChange}
-          className={`rounded-md p-1 ${priorityColor} bg-transparent`}
+          className={`rounded-md p-1 ${priorityColor} bg-transparent w-full md:w-auto`}
         >
           <option value="high">HIGH</option>
           <option value="medium">MEDIUM</option>
           <option value="low">LOW</option>
         </select>
 
-        <select
-          value={selectedCategory.toLowerCase()}
-          onChange={handleCategoryChange}
-          className="rounded-md p-1 bg-transparent"
-        >
-          <option value="scheduled">Scheduled</option>
-          <option value="unscheduled">Unscheduled</option>
-        </select>
-
-        {/* Date Picker for selecting dates */}
         <input
           type="date"
           value={selectedDate}
           onChange={handleDateChange}
-          className="rounded-md p-1 bg-transparent border border-gray-300"
-          min={selectedCategory === "scheduled" ? tomorrowDate : todayDate} // Scheduled: allow today & future, Unscheduled: only today
-          max={selectedCategory === "unscheduled" ? todayDate : undefined} // Unscheduled: restrict to today
-          disabled={selectedCategory === "unscheduled"} // Disable manual selection for unscheduled
+          className="rounded-md p-1 bg-transparent border border-gray-300 w-full md:w-auto"
+          min={todayDate}
         />
 
         <button
-          className="bg-transparent p-2 rounded-full border border-[#FEA400] text-[#FEA400] hover:bg-[#f5e1bc] transition"
+          className="bg-transparent p-2 rounded-full border border-[#FEA400] text-[#FEA400] hover:bg-[#f5e1bc] transition w-full md:w-auto"
           onClick={handleAddTask}
         >
-          <FontAwesomeIcon icon={faPlus} className="w-5" />
+          <FontAwesomeIcon icon={faPlus} className="w-5 mx-auto" />
         </button>
       </div>
     </div>

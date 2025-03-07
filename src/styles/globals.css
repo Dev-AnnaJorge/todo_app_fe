@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: #D7CAB7;
+  --background: #FFFBF4;
   --foreground: #171717;
 }
 
@@ -27,4 +27,19 @@ body {
 .text-outline {
   -webkit-text-stroke: 1px #FEA400; /* Orange stroke */
   color: #1f2937; /* Dark gray (Tailwind gray-800 equivalent) */
+}
+
+/* In your global CSS file */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
 }

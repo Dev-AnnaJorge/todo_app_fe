@@ -1,82 +1,81 @@
-import { TaskProps } from "@/interfaces";
-import fetchStore from "@/stores/fetchStore";
-import { format, isSameDay } from "date-fns";
-import TaskScheduled from "./ToDo/TaskItem";
-import TaskUnscheduled from "./ToDo/TaskUnscheduled";
+"use client";
+
 import { useEffect, useState } from "react";
+import { TaskProps } from "@/interfaces";
+import TaskScheduled from "./ToDo/TaskItem";
+import TaskUnscheduled from "./ToDo/TaskItemUnSchedule";
+import CompletedTasks from "./AccomplishedTasks/CompletedTask";
+import fetchStore from "@/stores/fetchStore";
 import { observer } from "mobx-react-lite";
 
 interface TaskContainerProps {
-  tasks: TaskProps[];
   onDelete: (id: number) => void;
-  onEdit: (task: TaskProps) => void;
+  onEdit: (updatedTask: TaskProps) => void;
   onApprove: (id: number) => void;
-  onSelect: (id: number, status: string) => void;
-  onCategoryModal: (id: number, category: string) => any;
-  onCloseModal?: (id: number, category: string) => void;
-  selectedDate: Date;
-  scheduled: boolean;
+  onSelect: (id: number) => void;
+  onCategoryModal: () => void;
+  tasksToday: TaskProps[];
 }
 
 const TaskContainer: React.FC<TaskContainerProps> = observer(
-  ({
-    tasks,
-    onDelete,
-    onApprove,
-    onSelect,
-    onCategoryModal,
-    selectedDate,
-    scheduled,
-  }) => {
-    const formattedDate = format(selectedDate, "yyyy-MM-dd");
+  ({ onApprove, onSelect, onCategoryModal }) => {
+    const [isClient, setIsClient] = useState(false);
 
-    // Filter tasks
-    const filteredTasks = tasks.filter((task) => {
-      const isTaskOnSelectedDate = isSameDay(
-        new Date(task.createdAt),
-        selectedDate
-      );
-      const isScheduled =
-        task.category === (scheduled ? "scheduled" : "unscheduled");
-      return isScheduled && isTaskOnSelectedDate;
-    });
+    useEffect(() => {
+      setIsClient(true);
+
+      const fetchTasks = async () => {
+        if (fetchStore.user) {
+          await fetchStore.fetchTodosToday(fetchStore.user.userId);
+          await fetchStore.fetchCompletedToday(fetchStore.user.userId);
+        }
+      };
+
+      fetchTasks();
+    }, []);
+
+    if (!isClient) return null; // Prevent hydration mismatch
+
+    const incompleteTasks = fetchStore.tasksToday.filter(
+      (task: TaskProps) => !task.completedAt
+    );
 
     return (
-      <div className="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8 pt-4 px-4 drop-shadow-2xl h-[480px]">
-        <div className="bg-white shadow-md rounded-lg p-6 flex-1">
-          <h2 className="bg-[#F5DFB5] text-xl font-semibold mb-4 p-3">
+      <div className="flex flex-col mt-36 md:mt-0 lg:m-0 md:flex-row gap-8 drop-shadow-2xl relative">
+        {/* Incomplete Tasks */}
+        <div className="w-full md:flex-1 bg-white shadow-md rounded-lg p-4">
+          <h2 className="bg-[#F5DFB5] font-semibold p-3 text-[#444444] text-[16px] sm:text-[18px] md:text-xl">
             Things to do
           </h2>
-          <h1 className="text-xl font-semibold">
-            {scheduled ? "Scheduled" : "Unscheduled"}
-          </h1>
-          <div className="bg-transparent p-4 rounded-lg shadow-md h-80 overflow-y-auto">
-            {filteredTasks.length === 0 ? (
-              <p className="text-gray-500">
-                No {scheduled ? "scheduled" : "unscheduled"} tasks available.
-              </p>
+          <div className="bg-transparent p-4 rounded-lg max-h-[478px] overflow-y-auto scrollbar-hide">
+            {incompleteTasks.length > 0 ? (
+              incompleteTasks.map((task: TaskProps) => (
+                <div key={task.id}>
+                  {task.category === "scheduled" ? (
+                    <TaskScheduled
+                      task={task}
+                      onSelect={onSelect}
+                      onApprove={onApprove}
+                      onCategoryModal={onCategoryModal}
+                    />
+                  ) : (
+                    <TaskUnscheduled
+                      task={task}
+                      onSelect={onSelect}
+                      onApprove={onApprove}
+                      onCategoryModal={onCategoryModal}
+                    />
+                  )}
+                </div>
+              ))
             ) : (
-              filteredTasks.map((task: TaskProps) =>
-                scheduled ? (
-                  <TaskScheduled
-                    key={task.id}
-                    task={task}
-                    onSelect={onSelect}
-                    onApprove={onApprove}
-                    onCategoryModal={onCategoryModal}
-                  />
-                ) : (
-                  <TaskUnscheduled
-                    key={task.id}
-                    task={task}
-                    onSelect={onSelect}
-                    onApprove={onApprove}
-                    onCategoryModal={onCategoryModal}
-                  />
-                )
-              )
+              <p className="text-gray-500">No tasks available.</p>
             )}
           </div>
+        </div>
+        {/* Completed Tasks */}
+        <div className="w-full md:w-2/6">
+          <CompletedTasks completedTasks={fetchStore.completedtoday} />
         </div>
       </div>
     );
