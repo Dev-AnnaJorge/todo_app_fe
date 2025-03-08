@@ -29,17 +29,23 @@ const exportCompletedTasksToCSV = () => {
   // Define CSV headers
   const headers = [
     "Title",
+    "Description",
     "Category",
     "Priority",
     "Effort Burn",
+    "Created At",
     "Completed At",
+    "Note",
   ];
   const rows = tasks.map((task) => [
     task.title,
+    task.description,
     task.category,
     task.priority,
     `${task.effortBurn} ${task.effortBurn === 1 ? "Hr" : "Hrs"}`,
+    new Date(task.createdAt).toLocaleDateString(),
     new Date(task.completedAt).toLocaleDateString(),
+    task.note,
   ]);
 
   // Combine headers and rows
@@ -52,7 +58,8 @@ const exportCompletedTasksToCSV = () => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", "completed_tasks.csv");
+  const date = new Date().toISOString().split("T")[0]; // Gets YYYY-MM-DD format
+  link.setAttribute("download", `Completed_Tasks_${date}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
