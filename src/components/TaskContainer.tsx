@@ -28,6 +28,7 @@ const TaskContainer: React.FC<TaskContainerProps> = observer(
         if (fetchStore.user) {
           await fetchStore.fetchTodosToday(fetchStore.user.userId);
           await fetchStore.fetchCompletedToday(fetchStore.user.userId);
+          await fetchStore.fetchTodos(fetchStore.user.userId);
         }
       };
 

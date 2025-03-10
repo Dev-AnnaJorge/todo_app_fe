@@ -5,7 +5,7 @@ import { AxiosError, AxiosPromise } from "axios";
 const GetTodosService = async (
   route: string,
   userId: number
-): Promise<TaskProps[]> => {
+): Promise<{[date:string]:TaskProps[]}> => {
   const res = await TodoApi.get(`${route}/${userId}`);
   return res.data;
 };

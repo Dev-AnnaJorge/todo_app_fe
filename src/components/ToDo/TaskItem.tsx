@@ -154,11 +154,10 @@ const TaskItem: React.FC<TaskScheduledProps> = observer(
         const category = task.category;
         if (fetchStore.user) {
           await fetchStore.fetchCompletedToday(fetchStore.user.userId);
-        }
-        if (fetchStore.user) {
           await fetchStore.fetchSummary(fetchStore.user.userId);
+          await fetchStore.fetchTodos(fetchStore.user.userId);
         }
-        fetchStore.fetchWeeklyTasks(category);
+        // fetchStore.fetchWeeklyTasks(category);
       } catch (error) {
         toast.error("Failed to update task status.");
         console.error("Error updating task status:", error);

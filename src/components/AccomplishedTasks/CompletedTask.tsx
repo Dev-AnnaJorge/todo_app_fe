@@ -1,7 +1,5 @@
 import { TaskProps } from "@/interfaces";
-import fetchStore from "@/stores/fetchStore";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
 import CompletedSchedule from "./CompletedSchedule";
 import CompletedUnSchedule from "./CompletedUnscheduled";
 

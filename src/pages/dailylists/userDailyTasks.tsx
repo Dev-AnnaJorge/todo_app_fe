@@ -22,6 +22,8 @@ const TaskPage: React.FC = observer(() => {
     }
   }, [selectedDate,scheduled]);
 
+  console.log("fetchStore.tasks",fetchStore.tasks);
+
 
     const handleMenuSelect = (menu: string) => {
         setActiveMenu(menu);
@@ -37,7 +39,7 @@ const TaskPage: React.FC = observer(() => {
               <DailyLists selectedDate={selectedDate} tasks={fetchStore.tasksToday} />
             )}
             {activeMenu === "tasksOverview" && (
-          <CollapsibleTasks tasks={fetchStore.tasks} />
+          <CollapsibleTasks tasks={fetchStore.taskss} />
             )}
           </div>
         </div>

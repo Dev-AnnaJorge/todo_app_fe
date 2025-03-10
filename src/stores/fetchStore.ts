@@ -26,6 +26,7 @@ class TodoStore {
   loading: boolean = false;
   error: string | null = null;
   tasks: TaskProps[] = [];
+  taskss: { [date: string]: TaskProps[] } = {};
   tasksToday: TaskProps[] = [];
   completedTasks: TaskProps[] = [];
   summaryTasks: any = [];
@@ -149,12 +150,14 @@ class TodoStore {
   async fetchTodos(userId: number) {
     if (!this.user) return;
     console.log("fetchTodos userId:", userId);
-    this.tasks = await GetTodosService(TodoRoutes.todos, userId);
+    this.taskss = await GetTodosService(TodoRoutes.todos, userId);
+    console.log("fetchTodos",this.tasks);
   }
 
   async fetchTodosToday(userId: number) {
     if (!this.user) return;
     this.tasksToday = await GetTodosTodayService(TodoRoutes.tasksToday, userId);
+    
   }
 
   async fetchBacklog(userId: number) {

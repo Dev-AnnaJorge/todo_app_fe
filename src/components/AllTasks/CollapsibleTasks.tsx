@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite"; // ✅ Ensure observer is properly imported
-import { Notebook } from "lucide-react";
+import { Hourglass, Notebook } from "lucide-react";
 import TaskBoard from "./TaskBoard";
 import { TaskProps } from "@/interfaces";
 import toast from "react-hot-toast";
@@ -23,11 +23,20 @@ const CollapsibleTasks = ({ tasks }: CollapsibleTasksProps) => {
       prev.includes(date) ? prev.filter((d) => d !== date) : [...prev, date]
     );
   };
+  useEffect(() => {
+    const fetchData = async () => {
+      if (fetchStore.user) {
+        await fetchStore.fetchTodosToday(fetchStore.user.userId);
+        await fetchStore.fetchTodos(fetchStore.user.userId);
+      }
+    };
+    fetchData();
+  }, []);
 
-  const handleStatusChange = async (taskId: number, newStatus: string) => {
+  const handleStatusChange = async (Id: number, newStatus: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/todos/${taskId}/status=${newStatus}`,
+        `http://localhost:3001/api/todos/${Id}/status=${newStatus}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -36,8 +45,6 @@ const CollapsibleTasks = ({ tasks }: CollapsibleTasksProps) => {
 
       if (response.ok) {
         toast.success("Task status updated!");
-
-        // ✅ Ensure user exists before calling fetchTodosToday
         if (fetchStore.user?.userId) {
           await fetchStore.fetchTodosToday(fetchStore.user.userId);
         }
@@ -118,7 +125,13 @@ const CollapsibleTasks = ({ tasks }: CollapsibleTasksProps) => {
                               )}
                             {task.status === "in_progress" && (
                               <span className="flex items-center text-yellow-600 font-normal">
-                                ⏳ In Progress
+                                 <span className="mr-2">In Progress</span>
+                                <span className="inline-flex">
+                                  <span className="w-1.5 h-1.5 bg-yellow-600 rounded-full animate-bounce [animation-delay:0ms]"></span>
+                                  <span className="w-1.5 h-1.5 bg-yellow-600 rounded-full animate-bounce [animation-delay:150ms] mx-1"></span>
+                                  <span className="w-1.5 h-1.5 bg-yellow-600 rounded-full animate-bounce [animation-delay:300ms]"></span>
+                                </span>
+                               
                               </span>
                             )}
                             {task.status === "completed" && (

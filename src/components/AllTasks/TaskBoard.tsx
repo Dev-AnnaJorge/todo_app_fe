@@ -21,10 +21,15 @@ const getPriorityColor = (priority: string) => {
 // ✅ CSV Export Function
 const exportCompletedTasksToCSV = () => {
   const tasks = fetchStore.completedTasks;
+  const user = fetchStore.user;
   if (!tasks.length) {
     alert("No completed tasks to export.");
     return;
   }
+  const fullName =
+    `${user?.firstName ?? ""} ${user?.middleName ?? ""} ${
+      user?.lastName ?? ""
+    }`.trim() || "N/A";
 
   // Define CSV headers
   const headers = [
@@ -49,8 +54,12 @@ const exportCompletedTasksToCSV = () => {
   ]);
 
   // Combine headers and rows
-  const csvContent = [headers, ...rows]
-    .map((row) => row.map((cell) => `"${cell}"`).join(","))
+  const csvContent = [
+    [`"Name : ${fullName}"`], // First row with name
+    headers.map((header) => `"${header}"`), // Header row
+    ...rows.map((row) => row.map((cell) => `"${cell}"`)), // Data rows
+  ]
+    .map((row) => row.join(","))
     .join("\n");
 
   // Trigger file download
@@ -97,7 +106,7 @@ const TaskBoard: React.FC = observer(() => {
                   <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#F5E8E8] bg-opacity-80 text-[#44444] text-xs rounded-md py-2 px-4 shadow-lg z-10 hidden group-hover:flex whitespace-pre-wrap break-words">
                     <span className="font-medium">{task.description}</span>
                   </div>
-  
+
                   <div className="flex flex-col">
                     <span>{task.title}</span>
                     <span className="text-sm text-gray-600">
@@ -121,10 +130,10 @@ const TaskBoard: React.FC = observer(() => {
           )}
         </div>
       </div>
-  
+
       {/* Divider (hidden on mobile) */}
       <div className="hidden lg:block w-[2px] bg-[#F5E8E8]"></div>
-  
+
       {/* Completed Tasks Section */}
       <div className="w-full lg:w-1/2 bg-white rounded-lg max-h-[45vh] lg:max-h-[80vh] flex flex-col">
         <h2 className="text-xl font-semibold text-[#4D4C4C] p-4 bg-white sticky top-0 z-10 border-b flex justify-between items-center">
@@ -158,7 +167,7 @@ const TaskBoard: React.FC = observer(() => {
                       <span className="font-medium">{task.note}</span>
                     </div>
                   </div>
-  
+
                   <span>{task.title}</span>
                   <div className="flex flex-col text-sm text-gray-600 text-right">
                     <span>
@@ -175,7 +184,6 @@ const TaskBoard: React.FC = observer(() => {
       </div>
     </div>
   );
-  
 });
 
 export default TaskBoard;
