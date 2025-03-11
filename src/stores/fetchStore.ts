@@ -17,7 +17,7 @@ import {
   GetTodosTodayService,
   AddNoteByTask,
 } from "@/services";
-import { LoginService } from "@/services/Login.service";
+import { LoginService, ResetPasswordService} from "@/services/Login.service";
 import { RegisterService } from "@/services/Resgistration.service";
 import { makeAutoObservable } from "mobx";
 
@@ -37,6 +37,7 @@ class TodoStore {
   completedtoday: TaskProps[] = [];
   backlog: TaskProps[] = [];
   notesByTasks: any = {};
+  resetPassword: User | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -205,6 +206,23 @@ class TodoStore {
     this.completedTasks = [...this.completedTasks];
     this.tasksToday = [...this.tasksToday];
   }
+
+  async resetUserPassword(userId: number, newPassword: string): Promise<void> {
+    if (!this.user) {
+      console.warn("No user is currently set.");
+      return;
+    }
+
+    try {
+      const res: User = await ResetPasswordService(TodoRoutes.resetPassword, userId, newPassword);
+      this.resetPassword = res; // Now fully typed
+      console.log("Password reset successful for user:", res.username);
+    } catch (error: any) {
+      console.error("Failed to reset password:", error.response?.data || error.message);
+      throw error;
+    }
+  }
+
 
   approveTask(taskId: number, completedAt: string) {
     const taskIndex = this.tasksToday.findIndex(

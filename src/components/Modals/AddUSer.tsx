@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import fetchStore from "@/stores/fetchStore";
 import toast from "react-hot-toast";
@@ -14,33 +14,11 @@ interface AddUserProps {
   onSuccess?: () => void;
 }
 
-const AddUser: React.FC<AddUserProps> = observer(({ closeModal, onSuccess }) => {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    suffix: "",
-    nickname: "",
-    contactNo: "",
-    userRole: "client",
-    birthDate: "",
-  });
-
-  const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const resetForm = () => {
-    setFormData({
+const AddUser: React.FC<AddUserProps> = observer(
+  ({ closeModal, onSuccess }) => {
+    const [formData, setFormData] = useState({
       username: "",
-      password: "",
+      password: "user123", // Default password
       firstName: "",
       middleName: "",
       lastName: "",
@@ -50,176 +28,194 @@ const AddUser: React.FC<AddUserProps> = observer(({ closeModal, onSuccess }) => 
       userRole: "client",
       birthDate: "",
     });
-  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long.");
-      return;
-    }
-
-    setError("");
-
-    const payload = {
-      username: formData.username,
-      password: formData.password,
-      firstName: formData.firstName,
-      middleName: formData.middleName || undefined,
-      lastName: formData.lastName,
-      suffix: formData.suffix || undefined,
-      nickname: formData.nickname || "",
-      contactNo: formData.contactNo || undefined,
-      userRole: formData.userRole,
-      birthDate: formData.birthDate,
+    const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const handleChange = (
+      e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    ) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    await fetchStore.signup(payload);
-    if (!fetchStore.error) {
-      toast.success("User successfully added!");
-      resetForm();
-      if (closeModal) {
-        setTimeout(() => closeModal(), 1000); // 2 seconds delay
+    const resetForm = () => {
+      setFormData({
+        username: "",
+        password: "user123", // Default password
+        firstName: "",
+        middleName: "",
+        lastName: "",
+        suffix: "",
+        nickname: "",
+        contactNo: "",
+        userRole: "client",
+        birthDate: "",
+      });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      setError("");
+
+      const payload = {
+        username: formData.username,
+        password: formData.password,
+        firstName: formData.firstName,
+        middleName: formData.middleName || undefined,
+        lastName: formData.lastName,
+        suffix: formData.suffix || undefined,
+        nickname: formData.nickname || "",
+        contactNo: formData.contactNo || undefined,
+        userRole: formData.userRole,
+        birthDate: formData.birthDate,
+      };
+
+      await fetchStore.signup(payload);
+      if (!fetchStore.error) {
+        toast.success("User successfully added!");
+        resetForm();
+        if (closeModal) {
+          setTimeout(() => closeModal(), 1000); // 2 seconds delay
+        }
+        if (onSuccess) onSuccess();
       }
-      if (onSuccess) onSuccess();
-    }
-  };
+    };
 
-  return (
-    <div className="flex items-center justify-center min-h-screen px-4">
-      <div className="relative flex bg-white shadow-lg rounded-2xl overflow-hidden max-w-4xl w-full border border-pink-200 p-8">
-        {closeModal && (
-          <button
-            onClick={closeModal}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl"
-          >
-            ×
-          </button>
-        )}
-
-        <form className="space-y-4 w-full text-[15px]" onSubmit={handleSubmit}>
-          <h2 className="text-2xl font-semibold text-center mb-4 text-gray-600">
-            Register New User
-          </h2>
-
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="text"
-              name="firstName"
-              placeholder="First Name"
-              value={formData.firstName}
-              onChange={handleChange}
-              className={inputClasses}
-              required
-            />
-            <input
-              type="text"
-              name="middleName"
-              placeholder="Middle Name"
-              value={formData.middleName}
-              onChange={handleChange}
-              className={inputClasses}
-            />
-            <input
-              type="text"
-              name="lastName"
-              placeholder="Last Name"
-              value={formData.lastName}
-              onChange={handleChange}
-              className={inputClasses}
-              required
-            />
-            <input
-              type="text"
-              name="suffix"
-              placeholder="Suffix (optional)"
-              value={formData.suffix}
-              onChange={handleChange}
-              className={inputClasses}
-            />
-            <input
-              type="text"
-              name="nickname"
-              placeholder="Nickname"
-              value={formData.nickname}
-              onChange={handleChange}
-              className={inputClasses}
-              required
-            />
-            <input
-              type="date"
-              name="birthDate"
-              value={formData.birthDate}
-              onChange={handleChange}
-              className={inputClasses}
-              required
-            />
-            <input
-              type="text"
-              name="contactNo"
-              placeholder="Contact Number"
-              value={formData.contactNo}
-              onChange={handleChange}
-              className={inputClasses}
-              required
-            />
-            <select
-              name="userRole"
-              value={formData.userRole}
-              onChange={handleChange}
-              className={inputClasses}
-              required
+    return (
+      <div className="flex items-center justify-center min-h-screen px-4">
+        <div className="relative flex bg-white shadow-lg rounded-2xl overflow-hidden max-w-4xl w-full border border-pink-200 p-8">
+          {closeModal && (
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl"
             >
-              <option value="client">Client</option>
-              <option value="admin">Admin</option>
-            </select>
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={formData.username}
-              onChange={handleChange}
-              className={inputClasses}
-              required
-            />
+              ×
+            </button>
+          )}
 
-            <div className="relative">
+          <form
+            className="space-y-4 w-full text-[15px]"
+            onSubmit={handleSubmit}
+          >
+            <h2 className="text-2xl font-semibold text-center mb-4 text-gray-600">
+              Register New User
+            </h2>
+
+            <div className="grid grid-cols-2 gap-4">
               <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Password"
-                value={formData.password}
+                type="text"
+                name="firstName"
+                placeholder="First Name"
+                value={formData.firstName}
                 onChange={handleChange}
                 className={inputClasses}
                 required
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+              <input
+                type="text"
+                name="middleName"
+                placeholder="Middle Name"
+                value={formData.middleName}
+                onChange={handleChange}
+                className={inputClasses}
+              />
+              <input
+                type="text"
+                name="lastName"
+                placeholder="Last Name"
+                value={formData.lastName}
+                onChange={handleChange}
+                className={inputClasses}
+                required
+              />
+              <input
+                type="text"
+                name="suffix"
+                placeholder="Suffix (optional)"
+                value={formData.suffix}
+                onChange={handleChange}
+                className={inputClasses}
+              />
+              <input
+                type="text"
+                name="nickname"
+                placeholder="Nickname"
+                value={formData.nickname}
+                onChange={handleChange}
+                className={inputClasses}
+                required
+              />
+              <input
+                type="date"
+                name="birthDate"
+                value={formData.birthDate}
+                onChange={handleChange}
+                className={inputClasses}
+                required
+              />
+              <input
+                type="text"
+                name="contactNo"
+                placeholder="Contact Number"
+                value={formData.contactNo}
+                onChange={handleChange}
+                className={inputClasses}
+                required
+              />
+              <select
+                name="userRole"
+                value={formData.userRole}
+                onChange={handleChange}
+                className={inputClasses}
+                required
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
+                <option value="client">Client</option>
+                <option value="admin">Admin</option>
+              </select>
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                value={formData.username}
+                onChange={handleChange}
+                className={inputClasses}
+                required
+              />
+
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={inputClasses}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
-          </div>
+            </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          {/* {fetchStore.error && (
-            <p className="text-red-500 text-sm">{fetchStore.error}</p>
-          )} */}
+            {error && <p className="text-red-500 text-sm">{error}</p>}
 
-          <button
-            type="submit"
-            className={buttonClasses}
-            disabled={fetchStore.loading}
-          >
-            {fetchStore.loading ? "Adding User..." : "Add User"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              className={buttonClasses}
+              disabled={fetchStore.loading}
+            >
+              {fetchStore.loading ? "Adding User..." : "Add User"}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 export default AddUser;

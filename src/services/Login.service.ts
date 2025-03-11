@@ -10,4 +10,14 @@ const LoginService = async (route: string, data: {username: string; password: st
         console.error("Login failed:", error.response?.data || error.message);
     }
 };
-export { LoginService };
+
+const ResetPasswordService = async (route: string, userId: number, password: string) => {
+    try {
+      const res = await TodoApi.put(`${route}/${userId}`, { password }); 
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
+  };
+  
+export { LoginService,  ResetPasswordService, };

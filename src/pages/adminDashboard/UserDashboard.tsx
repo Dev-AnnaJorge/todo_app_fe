@@ -171,7 +171,7 @@ const UserDashboard: React.FC = () => {
             </button>
             <button
               onClick={handleLogout}
-              className="flex items-center bg-transparent text-gray-700 px-1 py-1 rounded"
+              className="flex items-center bg-transparent text-red-600 px-1 py-1 rounded"
             >
               <LogOut size={18} />
             </button>

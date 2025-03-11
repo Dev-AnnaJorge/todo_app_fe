@@ -12,5 +12,6 @@ export const TodoRoutes = {
     tasksToday:'/api/todos/today/incomplete',
     login:'/api/user/login',
     register:'/api/user/register',
-    notesByTasks:'/api/todos/addNoteByTask'
+    notesByTasks:'/api/todos/addNoteByTask',
+    resetPassword:'/api/user/reset-password',
 }

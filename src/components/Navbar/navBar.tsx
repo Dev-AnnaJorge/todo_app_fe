@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import TaskInput from "../ToDo/TaskInput";
 import Image from "next/image";
-import { Menu, MenuIcon, UserCircle, X } from "lucide-react";
+import { Menu, UserCircle, X } from "lucide-react";
 import { useRouter } from "next/router";
 import fetchStore from "@/stores/fetchStore";
 import { observer } from "mobx-react-lite";
+import EditableUserInfoModal from "../Modals/EditableUserInfoModal";
 
 interface NavBarProps {
   onSelectMenu: (menu: string) => void;
@@ -13,10 +14,12 @@ interface NavBarProps {
 
 const NavBar: React.FC<NavBarProps> = ({ onSelectMenu, activeMenu }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userModalOpen, setUserModalOpen] = useState(false);
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const router = useRouter();
   const [navOpen, setNavOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -76,61 +79,62 @@ const NavBar: React.FC<NavBarProps> = ({ onSelectMenu, activeMenu }) => {
         </div>
 
         {/* Right Menu */}
-        <div className="hidden sm:flex items-center gap-8 mr-10">
-          <div className="relative inline-block text-left">
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center gap-2 border p-4"
+        <div className="hidden sm:flex items-center mr-12 relative">
+          {/* Menu Dropdown */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="p-2 border rounded-md"
+          >
+            <Menu size={20} className="text-gray-600" />
+          </button>
+          {menuOpen && (
+            <div
+              ref={dropdownRef}
+              className="absolute right-12 top-12 bg-white border rounded-lg shadow-lg w-40 z-50"
             >
-              <Menu size={20} className="text-gray-600 hover:bg-gray-200" />
-              <UserCircle size={24} className="text-gray-600" />
-            </button>
-
-            {menuOpen && (
-              <div
-                ref={dropdownRef}
-                className="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-40 z-[99999]"
+              <a
+                href="#"
+                onClick={() => {
+                  onSelectMenu("dailyList");
+                  setMenuOpen(false);
+                }}
+                className={`block px-4 py-2 text-sm ${
+                  activeMenu === "dailyList" ? "bg-[#F5DFB5]" : "text-gray-700"
+                } hover:bg-yellow-100`}
               >
-                <div className="py-1">
-                  <a
-                    href="#"
-                    onClick={() => {
-                      onSelectMenu("dailyList");
-                      setMenuOpen(false);
-                    }}
-                    className={`block px-4 py-2 text-sm ${
-                      activeMenu === "dailyList"
-                        ? "bg-[#F5DFB5]"
-                        : "text-gray-700"
-                    } hover:bg-yellow-100`}
-                  >
-                    Daily Lists
-                  </a>
-                  <a
-                    href="#"
-                    onClick={() => {
-                      onSelectMenu("tasksOverview");
-                      setMenuOpen(false);
-                    }}
-                    className={`block px-4 py-2 text-sm ${
-                      activeMenu === "tasksOverview"
-                        ? "bg-[#F5DFB5]"
-                        : "text-gray-700"
-                    } hover:bg-yellow-100`}
-                  >
-                    Tasks Overview
-                  </a>
-                  <a
-                    href="#"
-                    onClick={handleLogout}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Logout
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
+                Daily Lists
+              </a>
+              <a
+                href="#"
+                onClick={() => {
+                  onSelectMenu("tasksOverview");
+                  setMenuOpen(false);
+                }}
+                className={`block px-4 py-2 text-sm ${
+                  activeMenu === "tasksOverview"
+                    ? "bg-[#F5DFB5]"
+                    : "text-gray-700"
+                } hover:bg-yellow-100`}
+              >
+                Tasks Overview
+              </a>
+            </div>
+          )}
+
+          {/* User Modal */}
+          <button
+            onClick={() => setUserModalOpen(true)}
+            className="p-2 border rounded-md"
+          >
+            <UserCircle size={24} className="text-gray-600" />
+          </button>
+          {userModalOpen && (
+            <div
+              ref={modalRef}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+            >
+            </div>
+          )}
         </div>
       </header>
 
@@ -159,15 +163,23 @@ const NavBar: React.FC<NavBarProps> = ({ onSelectMenu, activeMenu }) => {
             >
               Tasks Overview
             </a>
-            <a
-              href="#"
-              onClick={handleLogout}
-              className="text-gray-700 text-sm py-2 px-4 rounded hover:bg-gray-100"
+            <button
+              onClick={() => setUserModalOpen(true)}
+              className="text-gray-700 text-sm py-2 px-4 rounded hover:bg-gray-100 text-left"
             >
-              Logout
-            </a>
+              User Profile
+            </button>
           </nav>
         </div>
+      )}
+
+      {/* User Modal for Mobile & Desktop */}
+      {userModalOpen && fetchStore.user && (
+        <EditableUserInfoModal
+          UserInfo={fetchStore.user}
+          closeModal={() => setUserModalOpen(false)}
+          onSuccess={() => console.log("User info updated successfully")}
+        />
       )}
     </>
   );
