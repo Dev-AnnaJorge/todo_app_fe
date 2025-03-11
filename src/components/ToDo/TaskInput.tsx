@@ -30,17 +30,13 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
       toast.error("Please fill in all fields");
       return;
     }
-
     const userId = fetchStore.user?.userId;
-
     if (!userId) {
       toast.error("No user logged in");
       return;
     }
-
     const today = format(new Date(), "yyyy-MM-dd");
     const category = selectedDate === today ? "unscheduled" : "scheduled";
-
     try {
       const payload = {
         userId,
@@ -50,25 +46,20 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
         category: category.toLowerCase(),
         createdAt: new Date(selectedDate),
       };
-
       const response = await axios.post(
         `${process.env.API_URL}/api/todos`,
         payload
       );
-
       toast.success("Task added successfully!");
       const { task } = response.data;
-
       if (task) {
         fetchStore.addTask(task);
         onAddTask(task);
       }
-
       setTitle("");
       setDescription("");
       setPriority("high");
       setSelectedDate(format(new Date(), "yyyy-MM-dd"));
-
       setTimeout(() => {
         window.location.reload();
       }, 2000);

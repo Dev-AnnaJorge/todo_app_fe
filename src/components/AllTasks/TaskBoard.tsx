@@ -85,15 +85,19 @@ const TaskBoard: React.FC = observer(() => {
     fetchTasks();
   }, []);
 
+  // Total counts
+  const totalBacklogTasks = fetchStore.backlog.length;
+  const totalCompletedTasks = fetchStore.completedTasks.length;
+
   return (
     <div className="flex flex-col lg:flex-row gap-4">
       {/* Backlog Section */}
       <div className="w-full lg:w-1/2 bg-white rounded-lg max-h-[45vh] lg:max-h-[80vh] flex flex-col">
         <h2 className="text-xl font-semibold text-[#4D4C4C] p-4 bg-white sticky top-0 z-10 border-b">
-          Backlog
+          Backlog <span className="text-gray-400">({totalBacklogTasks})</span>
         </h2>
         <div className="overflow-y-auto scrollbar-hide p-4 flex-1">
-          {fetchStore.backlog.length === 0 ? (
+          {totalBacklogTasks === 0 ? (
             <p className="text-gray-500">No backlog tasks</p>
           ) : (
             fetchStore.backlog
@@ -136,17 +140,20 @@ const TaskBoard: React.FC = observer(() => {
 
       {/* Completed Tasks Section */}
       <div className="w-full lg:w-1/2 bg-white rounded-lg max-h-[45vh] lg:max-h-[80vh] flex flex-col">
-        <h2 className="text-xl font-semibold text-[#4D4C4C] p-4 bg-white sticky top-0 z-10 border-b flex justify-between items-center">
-          Accomplishments
+      <div className="flex items-center justify-between border-b">
+        <h2 className="text-xl font-semibold text-[#4D4C4C] p-4 bg-white sticky top-0 z-10  flex items-center">
+          Accomplishments 
+          <span className="text-gray-400">({totalCompletedTasks})</span>
+          </h2>
           <button
             onClick={exportCompletedTasksToCSV}
-            className="text-gray-600 hover:text-gray-800"
+            className="text-gray-600 hover:text-gray-800 p-4"
           >
             <FileDown size={30} />
           </button>
-        </h2>
+          </div>
         <div className="overflow-y-auto scrollbar-hide p-4 flex-1">
-          {fetchStore.completedTasks.length === 0 ? (
+          {totalCompletedTasks === 0 ? (
             <p className="text-gray-500">No completed tasks</p>
           ) : (
             fetchStore.completedTasks
@@ -187,3 +194,6 @@ const TaskBoard: React.FC = observer(() => {
 });
 
 export default TaskBoard;
+
+
+

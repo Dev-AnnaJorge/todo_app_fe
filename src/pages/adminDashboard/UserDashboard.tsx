@@ -38,7 +38,7 @@ const UserDashboard: React.FC = () => {
   const [clientInfo, setClientInfo] = useState<User | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   // Close menu on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -170,7 +170,7 @@ const UserDashboard: React.FC = () => {
               <UserCircle size={24} />
             </button>
             <button
-              onClick={handleLogout}
+               onClick={() => setShowLogoutConfirm(true)}
               className="flex items-center bg-transparent text-red-600 px-1 py-1 rounded"
             >
               <LogOut size={18} />
@@ -200,7 +200,7 @@ const UserDashboard: React.FC = () => {
                     <UserCircle size={24} />
                   </button>
                   <button
-                    onClick={handleLogout}
+                    onClick={() => setShowLogoutConfirm(true)}
                     className="flex gap-14 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     Logout
@@ -355,29 +355,22 @@ const UserDashboard: React.FC = () => {
           </div>
         </div>
       )}
-      {showDeleteModal && userToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
-            <p>
-              Are you sure you want to delete{" "}
-              <strong>{userToDelete.username}</strong>?
-            </p>
-            <div className="mt-6 flex justify-end gap-2">
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <p className="mb-4">Are you sure you want to logout?</p>
+            <div className="flex justify-center gap-3">
               <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setUserToDelete(null);
-                }}
-                className="px-4 py-2 bg-gray-200 rounded"
+                onClick={handleLogout}
+                className="px-4 py-2 bg-red-400 text-white rounded"
               >
-                Cancel
+                Yes
               </button>
               <button
-                onClick={deleteUser}
-                className="px-4 py-2 bg-red-500 text-white rounded"
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-4 py-2 bg-gray-300 rounded"
               >
-                Delete
+                Cancel
               </button>
             </div>
           </div>

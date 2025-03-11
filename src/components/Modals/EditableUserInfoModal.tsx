@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { User } from "@/interfaces/Users";
+import axios from "axios";
 import toast from "react-hot-toast";
 import { Eye, EyeOff, LogOut } from "lucide-react";
 import fetchStore from "@/stores/fetchStore";
 import router from "next/router";
-import { ResetPasswordService } from "@/services/Login.service";
+import logout from "@/pages/Logout/logout";
 
 interface EditAdminInfoModalProps {
   UserInfo: User;
@@ -18,17 +19,22 @@ const EditableUserInfoModal: React.FC<EditAdminInfoModalProps> = ({
   onSuccess,
 }) => {
   const [formData, setFormData] = useState({
-    firstName: UserInfo.firstName || "",
-    lastName: UserInfo.lastName || "",
-    username: UserInfo.username || "",
+    firstName: "",
+    lastName: "",
+    username: "",
   });
 
   const [showPasswordFields, setShowPasswordFields] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [passwords, setPasswords] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [visibility, setVisibility] = useState({
+    showPassword: false,
+    showConfirmPassword: false,
+  });
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   useEffect(() => {
     if (UserInfo) {
@@ -42,54 +48,33 @@ const EditableUserInfoModal: React.FC<EditAdminInfoModalProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === "newPassword") setNewPassword(value);
-    if (name === "confirmPassword") setConfirmPassword(value);
+    setPasswords((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleResetPassword = async () => {
+    const { newPassword, confirmPassword } = passwords;
+
     if (!newPassword || newPassword !== confirmPassword) {
       toast.error("Passwords do not match or are empty!");
       return;
     }
-    setShowConfirmModal(true); // Show confirmation modal
-  };
 
-  const confirmResetPassword = async () => {
-    if (!UserInfo?.userId) {
-      toast.error("User ID is missing!");
-      return;
-    }
-  
-    if (!newPassword.trim()) {
-      toast.error("Password cannot be empty!");
-      return;
-    }
-  
     try {
-      console.log("Resetting password for userId:", UserInfo.userId);
-  
-      const res = await ResetPasswordService(
-        fetchStore.resetPassword, // Ensure this is the correct API route
-        UserInfo.userId,
-        newPassword
+      await axios.put(
+        `${process.env.API_URL}/api/user/reset-password/${UserInfo.userId}`,
+        { password: newPassword }
       );
-  
-      console.log("Password reset response:", res);
+
       toast.success("Password reset successfully!");
-  
-      // Reset fields after successful reset
-      setNewPassword("");
-      setConfirmPassword("");
       setShowPasswordFields(false);
-      setShowConfirmModal(false);
-    } catch (error: any) {
-      console.error("Password reset error:", error.response?.data || error.message);
-      toast.error("Failed to reset password. Please try again.");
+      setPasswords({ newPassword: "", confirmPassword: "" });
+      handleLogout();
+      closeModal();
+    } catch (error) {
+      toast.error("Failed to reset password.");
+      console.error(error);
     }
   };
-  
-  
-  
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -133,50 +118,62 @@ const EditableUserInfoModal: React.FC<EditAdminInfoModalProps> = ({
             </button>
           ) : (
             <>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="newPassword"
-                  placeholder="New Password"
-                  value={newPassword}
-                  onChange={handleChange}
-                  className="w-full border p-2 rounded"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
-              <div className="relative mt-2">
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={handleChange}
-                  className="w-full border p-2 rounded"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff size={20} />
-                  ) : (
-                    <Eye size={20} />
-                  )}
-                </button>
-              </div>
+              {(["newPassword", "confirmPassword"] as const).map((field) => (
+                <div key={field} className="relative mt-2">
+                  <input
+                    type={
+                      visibility[
+                        field === "newPassword"
+                          ? "showPassword"
+                          : "showConfirmPassword"
+                      ]
+                        ? "text"
+                        : "password"
+                    }
+                    name={field}
+                    placeholder={
+                      field === "newPassword"
+                        ? "New Password"
+                        : "Confirm Password"
+                    }
+                    value={passwords[field]}
+                    onChange={handleChange}
+                    className="w-full border p-2 rounded"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setVisibility((prev) => ({
+                        ...prev,
+                        [field === "newPassword"
+                          ? "showPassword"
+                          : "showConfirmPassword"]:
+                          !prev[
+                            field === "newPassword"
+                              ? "showPassword"
+                              : "showConfirmPassword"
+                          ],
+                      }))
+                    }
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                  >
+                    {visibility[
+                      field === "newPassword"
+                        ? "showPassword"
+                        : "showConfirmPassword"
+                    ] ? (
+                      <Eye size={20} />
+                    ) : (
+                      <EyeOff size={20} />
+                    )}
+                  </button>
+                </div>
+              ))}
               <div className="flex gap-3 mt-4">
                 <button
                   type="button"
-                  onClick={handleResetPassword}
+                  onClick={() => setShowResetConfirm(true)}
                   className="w-full py-2 bg-[#DCEDC1] text-gray-600 rounded"
                 >
                   Confirm
@@ -194,7 +191,8 @@ const EditableUserInfoModal: React.FC<EditAdminInfoModalProps> = ({
         </form>
         <div className="flex justify-end mt-4">
           <button
-            onClick={handleLogout}
+            type="button"
+            onClick={() => setShowLogoutConfirm(true)}
             className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 rounded"
           >
             <LogOut size={18} />
@@ -202,26 +200,45 @@ const EditableUserInfoModal: React.FC<EditAdminInfoModalProps> = ({
         </div>
       </div>
 
-      {/* Confirmation Modal */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
-            <h2 className="text-lg font-semibold mb-4 text-center">
-              Confirm Password Reset
-            </h2>
-            <p className="text-gray-600 text-center mb-4">
-              Are you sure you want to reset this password?
-            </p>
-            <div className="flex gap-4 justify-center">
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <p className="mb-4">Are you sure you want to logout?</p>
+            <div className="flex justify-center gap-3">
               <button
-                onClick={confirmResetPassword}
-                className="bg-[#DCEDC1] text-gray-700 px-4 py-2 rounded"
+                type="button"
+                onClick={handleLogout}
+                className="px-4 py-2 bg-red-400 text-white rounded"
               >
-                Yes, Reset
+                Yes
               </button>
               <button
-                onClick={() => setShowConfirmModal(false)}
-                className="bg-red-200 text-gray-700 px-4 py-2 rounded"
+                type="button"
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-4 py-2 bg-gray-300 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showResetConfirm && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <p className="mb-4">
+              Are you sure you want to reset your password?
+            </p>
+            <div className="flex justify-center gap-3">
+              <button
+                onClick={handleResetPassword}
+                className="px-4 py-2 bg-red-400 text-white rounded"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-4 py-2 bg-gray-300 rounded"
               >
                 Cancel
               </button>
