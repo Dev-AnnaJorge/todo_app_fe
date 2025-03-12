@@ -203,7 +203,7 @@ const EditableUserInfoModal: React.FC<EditAdminInfoModalProps> = ({
       {showLogoutConfirm && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <p className="mb-4">Are you sure you want to logout?</p>
+            <p className="mb-4 text-gray-600">Are you sure you want to logout?</p>
             <div className="flex justify-center gap-3">
               <button
                 type="button"

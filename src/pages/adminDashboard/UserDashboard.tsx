@@ -301,7 +301,7 @@ const UserDashboard: React.FC = () => {
       </div>
 
       {filteredUsers.length === 0 && (
-        <p className="text-center p-4">No users found.</p>
+        <p className="text-center p-4 text-gray-600">No users found.</p>
       )}
 
       {/* Pagination */}
@@ -358,7 +358,7 @@ const UserDashboard: React.FC = () => {
       {showLogoutConfirm && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <p className="mb-4">Are you sure you want to logout?</p>
+            <p className="mb-4 text-gray-600">Are you sure you want to logout?</p>
             <div className="flex justify-center gap-3">
               <button
                 onClick={handleLogout}

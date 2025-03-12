@@ -106,9 +106,6 @@ const TaskTrackerLogin = observer(() => {
             >
               {fetchStore.loading ? "Signing In..." : "Sign In"}
             </button>
-            {/* {fetchStore.error && (
-              <p className="text-red-500 text-sm mt-2">{fetchStore.error}</p>
-            )} */}
           </form>
         </div>
       </div>

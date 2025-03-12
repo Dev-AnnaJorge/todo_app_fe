@@ -92,7 +92,7 @@ const TaskTrackerSignup = observer(() => {
             alt="Task Tracker Logo"
             width={250}
             height={250}
-            className="max-w-full md:w-[400px] md:h-[280px]"
+            className="max-w-full md:w-[350px] md:h-[230px]"
           />
         </div>
 
@@ -223,7 +223,7 @@ const TaskTrackerSignup = observer(() => {
             )} */}
           </form>
 
-          <p className="mt-4 text-sm text-center">
+          <p className="mt-4 text-sm text-center text-gray-600">
             Already have an account?{" "}
             <a
               href="/login/TaskTrackerLogin"
