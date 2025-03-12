@@ -90,7 +90,7 @@ const TaskTrackerLogin = observer(() => {
               </button>
             </div>
             <div className="text-center">
-              <p className="mt-4 text-sm">
+              <p className="mt-4 text-sm text-gray-600">
                 Don't have an account?{" "}
                 <a
                   href="/login/TaskTrackerSignUp"
