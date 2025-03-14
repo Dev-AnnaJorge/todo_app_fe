@@ -187,7 +187,7 @@ const UserDashboard: React.FC = () => {
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-40 z-[99999]">
+              <div className="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-40 ">
                 <div className="py-1">
                   <button
                     onClick={() => {

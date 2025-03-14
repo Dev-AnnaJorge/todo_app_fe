@@ -193,7 +193,7 @@ const EditableUserInfoModal: React.FC<EditAdminInfoModalProps> = ({
           <button
             type="button"
             onClick={() => setShowLogoutConfirm(true)}
-            className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 rounded"
+            className="hidden md:flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 rounded"
           >
             <LogOut size={18} />
           </button>
@@ -202,7 +202,7 @@ const EditableUserInfoModal: React.FC<EditAdminInfoModalProps> = ({
 
       {showLogoutConfirm && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-sm md:text-lg">
             <p className="mb-4 text-gray-600">Are you sure you want to logout?</p>
             <div className="flex justify-center gap-3">
               <button
@@ -225,7 +225,7 @@ const EditableUserInfoModal: React.FC<EditAdminInfoModalProps> = ({
       )}
       {showResetConfirm && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-sm md:text-lg">
             <p className="mb-4">
               Are you sure you want to reset your password?
             </p>

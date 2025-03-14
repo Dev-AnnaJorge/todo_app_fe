@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import TaskInput from "../ToDo/TaskInput";
 import Image from "next/image";
-import { Menu, UserCircle, X } from "lucide-react";
+import { LogOut, Menu, UserCircle, X } from "lucide-react";
 import { useRouter } from "next/router";
 import fetchStore from "@/stores/fetchStore";
 import { observer } from "mobx-react-lite";
@@ -15,9 +15,9 @@ interface NavBarProps {
 const NavBar: React.FC<NavBarProps> = ({ onSelectMenu, activeMenu }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userModalOpen, setUserModalOpen] = useState(false);
-  const toggleMenu = () => setMenuOpen(!menuOpen);
-  const router = useRouter();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -37,9 +37,16 @@ const NavBar: React.FC<NavBarProps> = ({ onSelectMenu, activeMenu }) => {
       ) {
         setMenuOpen(false);
       }
+
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        setUserModalOpen(false);
+      }
     };
 
-    if (menuOpen) {
+    if (menuOpen || userModalOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -48,11 +55,11 @@ const NavBar: React.FC<NavBarProps> = ({ onSelectMenu, activeMenu }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [menuOpen]);
+  }, [menuOpen, userModalOpen]);
 
   return (
     <>
-      <header className="sticky top-0 z-50 flex flex-col sm:flex-row justify-between items-center bg-[#F5E8E8] p-4 sm:p-0 shadow-md ">
+      <header className="sticky top-0 z-50 flex flex-col sm:flex-row justify-between items-center bg-[#F5E8E8] p-4 sm:p-0 shadow-md">
         {/* Left Section */}
         <div className="flex justify-between items-center w-full sm:w-auto px-2 sm:px-10">
           <div className="flex items-center gap-2">
@@ -128,13 +135,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSelectMenu, activeMenu }) => {
           >
             <UserCircle size={24} className="text-gray-600" />
           </button>
-          {userModalOpen && (
-            <div
-              ref={modalRef}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-            >
-            </div>
-          )}
         </div>
       </header>
 
@@ -169,17 +169,50 @@ const NavBar: React.FC<NavBarProps> = ({ onSelectMenu, activeMenu }) => {
             >
               User Profile
             </button>
+            <button
+              type="button"
+              onClick={() => setShowLogoutConfirm(true)}
+              className="flex items-center text-sm gap-2 px-4 py-2 text-red-600 hover:text-red-700 rounded"
+            >
+              Logout
+              <LogOut size={18} />
+            </button>
           </nav>
         </div>
       )}
 
-      {/* User Modal for Mobile & Desktop */}
+      {/* User Modal */}
       {userModalOpen && fetchStore.user && (
         <EditableUserInfoModal
           UserInfo={fetchStore.user}
           closeModal={() => setUserModalOpen(false)}
           onSuccess={() => console.log("User info updated successfully")}
         />
+      )}
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <p className="text-sm md:text-lg font-medium ">
+              Are you sure you want to log out?
+            </p>
+            <div className="text-sm md:text-lg flex justify-center mt-4 gap-4">
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-red-600 text-white rounded"
+              >
+                Logout
+              </button>
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-4 py-2 bg-gray-300 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
