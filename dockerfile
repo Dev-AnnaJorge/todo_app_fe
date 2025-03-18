@@ -2,7 +2,7 @@
 FROM node:18 AS builder
 
 # Set the working directory
-WORKDIR /app
+WORKDIR /
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
@@ -20,7 +20,7 @@ RUN npm run build
 FROM node:18 AS runner
 
 # Set the working directory
-WORKDIR /app
+WORKDIR /
 
 # Copy the build output and necessary files from the builder stage
 COPY --from=builder /public ./public
