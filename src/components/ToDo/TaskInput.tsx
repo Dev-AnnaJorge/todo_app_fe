@@ -47,7 +47,7 @@ const TaskInput = ({ onAddTask }: { onAddTask: (task: TaskProps) => void }) => {
         createdAt: new Date(selectedDate),
       };
       const response = await axios.post(
-        `${process.env.API_URL}/api/todos`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/todos`,
         payload
       );
       toast.success("Task added successfully!");

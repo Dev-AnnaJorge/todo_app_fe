@@ -42,7 +42,7 @@ const CompletedUnschedule: React.FC<CompletedUnschedule> = ({ task }) => {
 
   const handleUndo = async () => {
     try {
-      await axios.put(`${process.env.API_URL}/api/todos/${task.id}/status=in_progress`);
+      await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${task.id}/status=in_progress`);
       toast.success("Task moved back to In Progress!");
       fetchStore.updateTaskStatus(task.id, "in_progress");
       await fetchStore.fetchTodosToday(fetchStore.user!.userId);

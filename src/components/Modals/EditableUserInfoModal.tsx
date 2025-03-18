@@ -61,7 +61,7 @@ const EditableUserInfoModal: React.FC<EditAdminInfoModalProps> = ({
 
     try {
       await axios.put(
-        `${process.env.API_URL}/api/user/reset-password/${UserInfo.userId}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/reset-password/${UserInfo.userId}`,
         { password: newPassword }
       );
 

@@ -31,11 +31,11 @@ app.prepare().then(() => {
   // Enable compression for better performance
   server.use(compression());
 
-  const API_URL =
+  const NEXT_PUBLIC_BASE_URL =
     process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
   // Enable CORS
   const corsOptions = {
-    origin: [API_URL],
+    origin: [NEXT_PUBLIC_BASE_URL],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

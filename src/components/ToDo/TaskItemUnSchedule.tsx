@@ -58,7 +58,7 @@ const TaskItemUnSchedule: React.FC<TaskItemUnScheduleProps> = observer(
           localStorage.removeItem(`task-${task.id}-starred`);
         }
         await axios.put(
-          `${process.env.API_URL}/api/todos/${task.id}/importance=${newImportantValue}`
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${task.id}/importance=${newImportantValue}`
         );
 
         fetchStore.updateTaskImportance(task.id, newImportantValue);
@@ -98,7 +98,7 @@ const TaskItemUnSchedule: React.FC<TaskItemUnScheduleProps> = observer(
       setSelectedStatus(newStatus);
       try {
         await axios.put(
-          `${process.env.API_URL}/api/todos/${task.id}/status=${newStatus}`
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${task.id}/status=${newStatus}`
         );
         toast.success("Task status updated successfully!");
         const date = new Date().toISOString().split("T")[0];
@@ -115,7 +115,7 @@ const TaskItemUnSchedule: React.FC<TaskItemUnScheduleProps> = observer(
 
     const handleDelete = async (id: number) => {
       try {
-        await axios.delete(`${process.env.API_URL}/api/todos/${id}`);
+        await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${id}`);
         toast.success("Task deleted successfully!");
         fetchStore.deleteTask(id);
       } catch (error) {
@@ -145,7 +145,7 @@ const TaskItemUnSchedule: React.FC<TaskItemUnScheduleProps> = observer(
 
       try {
         await axios.put(
-          `${process.env.API_URL}/api/todos/${task.id}/status=${completedStatus}`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${task.id}/status=${completedStatus}`,
           {}
         );
         toast.success("Task marked as completed!");
@@ -172,7 +172,7 @@ const TaskItemUnSchedule: React.FC<TaskItemUnScheduleProps> = observer(
       handleCategoryChange(newCategory);
       setDescription(newDescription);
       try {
-        await axios.put(`${process.env.API_URL}/api/todos/update`, {
+        await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/update`, {
           id: task.id,
           title: task.title,
           category: newCategory, // Use the updated category

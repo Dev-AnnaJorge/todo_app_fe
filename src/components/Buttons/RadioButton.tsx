@@ -26,7 +26,7 @@ const RadioButton: React.FC<RadioProps> = ({
 
     try {
       await axios.put(
-        `${process.env.API_URL}/api/todos/${task.id}/type=${value}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${task.id}/type=${value}`,
         {
           id: task.id,
           category: value, // Use the new selected category
