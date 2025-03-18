@@ -23,10 +23,10 @@ FROM node:18 AS runner
 WORKDIR /app
 
 # Copy the build output and necessary files from the builder stage
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/server.js ./
+COPY --from=builder /public ./public
+COPY --from=builder /.next ./.next
+COPY --from=builder /package.json ./
+COPY --from=builder /server.js ./
 
 # Install only production dependencies
 RUN npm install --production --omit=dev
