@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-var-requires */
 const compression = require('compression');
 const dotenv = require('dotenv');
 const express = require('express');
