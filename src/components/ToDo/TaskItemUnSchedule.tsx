@@ -250,7 +250,7 @@ const TaskItemUnSchedule: React.FC<TaskItemUnScheduleProps> = observer(
           {/* Status Selector */}
           <div className="flex flex-row items-center justify-end gap-2 w-full sm:w-auto md:w-1/4">
             {/* Status Selector */}
-            <div className="w-1/2 sm:w-auto flex justify-end">
+            <div className="w-1/2 sm:w-auto md:w-32 flex justify-end ">
               {selectedStatus !== "completed" && (
                 <Select
                   id="status"
