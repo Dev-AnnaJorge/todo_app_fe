@@ -35,7 +35,7 @@ app.prepare().then(() => {
     process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
   // Enable CORS
   const corsOptions = {
-    origin: [NEXT_PUBLIC_BASE_URL],
+    origin: ["*","https://edith-be.mlhuillier.net",NEXT_PUBLIC_BASE_URL],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
