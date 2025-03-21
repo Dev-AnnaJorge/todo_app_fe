@@ -67,7 +67,7 @@ const EditAdminInfoModal: React.FC<EditAdminInfoModalProps> = ({
       };
   
       await axios.put(
-        `http://localhost:3001/api/user/update/${adminInfo.userId}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/update/${adminInfo.userId}`,
         payload
       );
       setFormData((prev) => ({

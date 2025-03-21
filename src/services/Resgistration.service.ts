@@ -11,6 +11,7 @@ const RegisterService = async (
   } catch (err) {
     const error = err as AxiosError;
     console.error("Login failed:", error.response?.data || error.message);
+    throw error;
   }
 };
 

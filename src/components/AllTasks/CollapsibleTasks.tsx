@@ -36,7 +36,7 @@ const CollapsibleTasks = ({ tasks }: CollapsibleTasksProps) => {
   const handleStatusChange = async (Id: number, newStatus: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/todos/${Id}/status=${newStatus}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${Id}/status=${newStatus}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

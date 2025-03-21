@@ -61,7 +61,7 @@ const EditClientInfoModal: React.FC<EditClientInfoModalProps> = ({
       };
   
       await axios.put(
-        `http://localhost:3001/api/user/update/${clientInfo.userId}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/update/${clientInfo.userId}`,
         updatedData
       );
       setFormData((prev) => ({

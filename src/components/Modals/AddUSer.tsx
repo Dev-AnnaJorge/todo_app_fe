@@ -78,6 +78,8 @@ const AddUser: React.FC<AddUserProps> = observer(
           setTimeout(() => closeModal(), 1000); // 2 seconds delay
         }
         if (onSuccess) onSuccess();
+      }else{
+        toast.error(fetchStore.error)
       }
     };
 

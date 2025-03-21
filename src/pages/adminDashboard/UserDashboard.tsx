@@ -54,7 +54,7 @@ const UserDashboard: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/api/user/list");
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/list`);
       setUsers(response.data);
       setFilteredUsers(response.data);
 
@@ -96,7 +96,7 @@ const UserDashboard: React.FC = () => {
   const toggleStatus = async (userId: number, currentStatus: boolean) => {
     try {
       await axios.put(
-        `http://localhost:3001/api/user/update/${userId}/${!currentStatus}`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/update/${userId}/${!currentStatus}`
       );
       toast.success("User status updated!");
       fetchUsers();
@@ -121,7 +121,7 @@ const UserDashboard: React.FC = () => {
     if (!userToDelete) return;
     try {
       await axios.delete(
-        `http://localhost:3001/api/user/delete/${userToDelete.userId}`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/delete/${userToDelete.userId}`
       );
       toast.success("User deleted successfully!");
       fetchUsers();

@@ -23,20 +23,20 @@ const TaskTrackerLogin = observer(() => {
     e.preventDefault();
 
     await fetchStore.login(username, password);
-
-    if (fetchStore.user) {
-      const { userRole } = fetchStore.user;
-
-      if (userRole === "admin") {
-        router.push("/adminDashboard/UserDashboard");
-      } else if (userRole === "client") {
-        router.push("/dailylists/userDailyTasks");
+ 
+      if (fetchStore.user) {
+        const { userRole } = fetchStore.user;
+  
+        if (userRole === "admin") {
+          router.push("/adminDashboard/UserDashboard");
+        } else if (userRole === "client") {
+          router.push("/dailylists/userDailyTasks");
+        } else {
+          toast.error("Unknown user role.");
+        }
       } else {
-        toast.error("Unknown user role.");
+        toast.error(fetchStore.error);
       }
-    } else {
-      toast.error("Login failed. Please check your credentials.");
-    }
   };
 
   return (
@@ -105,7 +105,7 @@ const TaskTrackerLogin = observer(() => {
               className="w-full py-3 text-[#444444] font-bold rounded-full border-gray-600 hover:text-white hover:bg-gradient-to-r from-[#f4b93e] to-[#f7693c] transition-colors"
             >
               {fetchStore.loading ? "Signing In..." : "Sign In"}
-            </button>
+            </button>           
           </form>
         </div>
       </div>

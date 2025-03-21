@@ -114,7 +114,7 @@ const EditableUserInfoModal: React.FC<EditAdminInfoModalProps> = ({
               onClick={() => setShowPasswordFields(true)}
               className="w-full py-2 bg-[#C1E1EC] text-gray-600 rounded mt-4"
             >
-              Reset Password
+              Change Password
             </button>
           ) : (
             <>
